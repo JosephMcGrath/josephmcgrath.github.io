@@ -1,174 +1,132 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="date_created" content="2017-08-19"/>
+  <meta name="author" content="Joe McGrath"/>
+  <meta name="description" content="A guide to visualising LiDAR and creating contours in QGIS 2."/>
+  <meta name="title" content="LiDAR Data and Contours in QGIS"/>
 
-<title>LiDAR Data and Contours in QGIS</title>
+  <title>LiDAR Data and Contours in QGIS</title>
 
-<link rel="stylesheet" type="text/css" href="/main.css">
+  <link rel="stylesheet" type="text/css" href="/main.css">
 
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/manifest.json">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-<meta name="theme-color" content="#ffffff">
-
-
-
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="theme-color" content="#ffffff">
 </head>
-
 <body>
+<div class = "nav-bar">
+  <img src = "/nav-bar-icon.png">
+    Joe's Blog!
+    <a href="/index.html">Home</a>
+    <a href="/blog/blogs.html">Blogs</a>
+    <!--<a href="/map/maps.html">Maps</a>
+    <a href="/about.html">About</a>-->
+</div>
+<div class = "main">
 <h1>LiDAR Data and Contours in QGIS</h1>
-
-<p><em>2017/08/19</em></p>
-
+<p><em>Note - this was written for QGIS 2 and hasn't been updated for QGIS 3.</em></p>
 <p><img src="img/qgis-2-lidar-example.jpg" alt="An example output of LiDAR data."></p>
-
 <h2>Getting LiDAR into QGIS</h2>
-
-<p>Most sources of LiDAR data I&#39;ve seen (and raster data in general) comes split into tiles for a number of reasons. This does causes us a few problems when using the data:</p>
-
+<p>Most sources of LiDAR data I've seen (and raster data in general) comes split into tiles for a number of reasons. This does causes us a few problems when using the data:</p>
 <ul>
-<li>If the files don&#39;t have a projection assigned in a way your GIS understands (which they probably won&#39;t), then importing tile-by-tile manually can take a <em>long</em> time and isn&#39;t a good use of anyones time. This is the same for both QGIS and MapInfo when I tried it.</li>
-<li>When those tiles have been imported, they&#39;re treated as separate layers, so getting a consistent theme is difficult and more advanced visualisation (e.g. histogram stretch) is impossible.</li>
+<li>If the files don't have a projection assigned in a way your GIS understands (which they probably won't), then importing tile-by-tile manually can take a <em>long</em> time and isn't a good use of anyones time. This is the same for both QGIS and MapInfo when I tried it.</li>
+<li>When those tiles have been imported, they're treated as separate layers, so getting a consistent theme is difficult and more advanced visualisation (e.g. histogram stretch) is impossible.</li>
 </ul>
-
-<p>There&#39;s a few ways to solve this, but the simplest I know of is to build a virtual raster / raster catalog. This is basically a small file that acts as an intermediate and allows a set of tiles to be treated as a single file. It can do a couple of fairly clever things with different resolutions and projections - but for the simple purpose of merging LiDAR tiles we don&#39;t need that.</p>
-
+<p>There's a few ways to solve this, but the simplest I know of is to build a virtual raster / raster catalog. This is basically a small file that acts as an intermediate and allows a set of tiles to be treated as a single file. It can do a couple of fairly clever things with different resolutions and projections - but for the simple purpose of merging LiDAR tiles we don't need that.</p>
 <p>The processing steps to create a virtual raster are:</p>
-
 <ol>
-<li>Extract all of the data if you haven&#39;t already, preferably in a single folder.</li>
+<li>Extract all of the data if you haven't already, preferably in a single folder.</li>
 <li>In QGIS go through Raster -&gt; Miscellaneous -&gt; Build Virtual Raster (Catalog)</li>
-<li>Use the &#39;Input files&#39; dialog to select all of your input files.</li>
+<li>Use the 'Input files' dialog to select all of your input files.</li>
 <li>Choose a name for the output.</li>
-<li>Set the &#39;Source No Data&#39; (The value that is used to represent a lack of data for a specific cell) and &#39;Target SRS&#39; values (The projection the files use).
-
-<ul>
+<li>Set the 'Source No Data' (The value that is used to represent a lack of data for a specific cell) and 'Target SRS' values (The projection the files use).<ul>
 <li>For Environment Agency LiDAR these are -9999 and EPSG:27700 (British National Grid) respectively.</li>
-</ul></li>
-<li>Press &#39;OK&#39;.</li>
-<li>After you&#39;ve created the virtual raster you might want to save it to it&#39;s own file (e.g. a geotiff) for a few reasons:
-
-<ul>
-<li>The single file&#39;s a lot more transferable.</li>
+</ul>
+</li>
+<li>Press 'OK'.</li>
+<li>After you've created the virtual raster you might want to save it to it's own file (e.g. a geotiff) for a few reasons:<ul>
+<li>The single file's a lot more transferable.</li>
 <li>More programs have support for single-raster files then virtual ones.</li>
 <li>In my experience, features like pyramids work a bit more consistently on single files.</li>
-</ul></li>
+</ul>
+</li>
 </ol>
-
 <p><img src="img/qgis-2-build-virtual-raster.jpg" alt="The Build Virtual Raster menu in QGIS."></p>
-
-<p>From this image, you can see an example. The big box full of file paths is a bit of a giveaway to what&#39;s <em>actually</em> happening here. One of the major open-source components of QGIS is <em>GDAL</em>, which handles the bult of raster processing. In this example, QGIS is acting as an intermediary between the user and gdalbuildvrt which actually builds the virtual raster.</p>
-
+<p>From this image, you can see an example. The big box full of file paths is a bit of a giveaway to what's <em>actually</em> happening here. One of the major open-source components of QGIS is <em>GDAL</em>, which handles the bult of raster processing. In this example, QGIS is acting as an intermediary between the user and gdalbuildvrt which actually builds the virtual raster.</p>
 <h2>Displaying the LiDAR</h2>
-
-<p>As an example I&#39;ll assume the desired output is a hillshade (aka shaded relief) with height themed by colour and contours over the top.</p>
-
+<p>As an example I'll assume the desired output is a hillshade (aka shaded relief) with height themed by colour and contours over the top.</p>
 <h3>Theme by Height (pseudocolour)</h3>
-
-<p>The simplest of these is elevation themed by height. The previous step should have loaded the data into QGIS (if it hasn&#39;t you should be able to load it through the &#39;Add Raster Layer&#39; menu), so go into the layer properties for the LiDAR data:</p>
-
+<p>The simplest of these is elevation themed by height. The previous step should have loaded the data into QGIS (if it hasn't you should be able to load it through the 'Add Raster Layer' menu), so go into the layer properties for the LiDAR data:</p>
 <ol>
-<li>In the &#39;Style&#39; tab of layer properties, it should say &#39;Singleband gray&#39; near the top, this just displays the image as greyscale. Instead choose &#39;Singleband Pseudocolor&#39; which lets you apply a colour ramp to the data instead, so switch to that.</li>
-<li>The &#39;interpolation method&#39; probably wants to be linear, though you could get some interesting results with discrete values combined with contours.
-
-<ul>
+<li>In the 'Style' tab of layer properties, it should say 'Singleband gray' near the top, this just displays the image as greyscale. Instead choose 'Singleband Pseudocolor' which lets you apply a colour ramp to the data instead, so switch to that.</li>
+<li>The 'interpolation method' probably wants to be linear, though you could get some interesting results with discrete values combined with contours.<ul>
 <li><strong>Linear</strong> interpolated grades the colour between break points.</li>
 <li><strong>Discrete</strong> uses the same shade for all values between two break points.</li>
-<li>I wouldn&#39;t advise it for this use-case, but <strong>Exact</strong> themes only values matching a criteria (you could use it to create some very ugly almost-contours if you really wanted but the mode&#39;s more for classified rasters).</li>
-</ul></li>
-<li>Choose a colour ramp - I normally go for a monochrome one, e.g. the greens above.
-
-<ul>
-<li>While &#39;spectral&#39; does give very good distinction between values - rainbow maps are something of a mapping faux-pas and won&#39;t help your colourblind users much.</li>
-</ul></li>
-<li>If needed, you can invert the colour ramp and manually define break points in this menu (particularly suggested if you&#39;re going to put the colour ramp on a legend to avoid weird units).
-
-<ul>
-<li>And you can set a &#39;Label Unit suffix&#39; so it shows up as something like &#39;140 m AD&#39; rather than just &#39;140&#39;.</li>
-</ul></li>
+<li>I wouldn't advise it for this use-case, but <strong>Exact</strong> themes only values matching a criteria (you could use it to create some very ugly almost-contours if you really wanted but the mode's more for classified rasters).</li>
+</ul>
+</li>
+<li>Choose a colour ramp - I normally go for a monochrome one, e.g. the greens above.<ul>
+<li>While 'spectral' does give very good distinction between values - rainbow maps are something of a mapping faux-pas and won't help your colourblind users much.</li>
+</ul>
+</li>
+<li>If needed, you can invert the colour ramp and manually define break points in this menu (particularly suggested if you're going to put the colour ramp on a legend to avoid weird units).<ul>
+<li>And you can set a 'Label Unit suffix' so it shows up as something like '140 m AD' rather than just '140'.</li>
+</ul>
+</li>
 <li>Press ok or apply (you might need to go back and forth to find a scheme that works for you).</li>
 </ol>
-
 <h3>Hillshade</h3>
-
 <p>Hillshading is very simple in newer versions of QGIS.</p>
-
 <ol>
-<li>Create a duplicate of the LiDAR layer (right click, then &#39;Duplicate&#39;).</li>
-<li>Rather than &#39;Singleband Pseudocolor&#39; use &#39;Hillshade&#39;</li>
-<li>Most of the default settings should be fine.
-
-<ul>
-<li>I&#39;d advise having the &#39;Azimuth&#39; coming in from the top-left, otherwise terrain can appear inverted.</li>
-<li>You may need to play around with the &#39;Altitude&#39; and &#39;Z Factor&#39; (virtical exaggeration) setting, particularly in hilly areas.</li>
-</ul></li>
-<li>Set the &#39;Blending mode&#39; beneath the hillshade options to &#39;Multiply&#39;</li>
+<li>Create a duplicate of the LiDAR layer (right click, then 'Duplicate').</li>
+<li>Rather than 'Singleband Pseudocolor' use 'Hillshade'</li>
+<li>Most of the default settings should be fine.</li>
+<li>I'd advise having the 'Azimuth' coming in from the top-left, otherwise terrain can appear inverted.</li>
+<li>You may need to play around with the 'Altitude' and 'Z Factor' (virtical exaggeration) setting, particularly in hilly areas.</li>
+<li>Set the 'Blending mode' beneath the hillshade options to 'Multiply'</li>
 <li>Press ok.</li>
 <li>Make sure that the hillshade layer is above the pseudocolour layer in the legend.</li>
 </ol>
-
-<p>In older versions, there&#39;s an option to create hillshades using the &#39;Raster Terrain Analysis Plugin&#39; which may need to be installed if it&#39;s not already in the &#39;Raster&#39; menu.</p>
-
-<p>A note of caution for calculating hillshades on the fly - it re-calculates itself dynamically, so if you&#39;re planning to view the data up-close you&#39;re better off pre-calculating it through the Terrain Analysis Plugin. Otherwise if you zoom in far enough to see individual pixels then they get shaded as if they&#39;re cuboid blocks. You can see a little bit of this effect in the buildings shown at the top of the page.</p>
-
+<p>In older versions, there's an option to create hillshades using the 'Raster Terrain Analysis Plugin' which may need to be installed if it's not already in the 'Raster' menu.</p>
+<p>A note of caution for calculating hillshades on the fly - it re-calculates itself dynamically, so if you're planning to view the data up-close you're better off pre-calculating it through the Terrain Analysis Plugin. Otherwise if you zoom in far enough to see individual pixels then they get shaded as if they're cuboid blocks. You can see a little bit of this effect in the buildings shown at the top of the page.</p>
 <h2>Creating Contours</h2>
-
 <p>Contours are fairly simple to create in QGIS, but need a little editing if you want something for presentation:</p>
-
 <ol>
 <li>Go to Raster -&gt; Extraction -&gt; Contour.</li>
 <li>Set the input file to your LiDAR.</li>
 <li>Choose an output file.</li>
-<li>I&#39;d advise setting elevation to an attribute.</li>
-<li>Press &#39;OK&#39; - processing might take a few minutes depending on how much data you&#39;re using.</li>
+<li>I'd advise setting elevation to an attribute.</li>
+<li>Press 'OK' - processing might take a few minutes depending on how much data you're using.</li>
 </ol>
-
 <h3>Cleaning up the Contours</h3>
-
-<p>On fine-scale data like most LiDAR, you might find that the contours produced are a little on the noisey side. The most effective way to clean this up is to delete all of the short contours. To do this, use the &#39;Select by Expression&#39; tool:</p>
-
+<p>On fine-scale data like most LiDAR, you might find that the contours produced are a little on the noisey side. The most effective way to clean this up is to delete all of the short contours. To do this, use the 'Select by Expression' tool:</p>
 <p><img src="img/qgis-2-select-by-expression.jpg" alt="The location of the 'Select by Expression' dialog menu in QGIS."></p>
-
-<p>I prefer to use an expression that makes a distinction between lines that form closed contours and ones that don&#39;t (meaning that contours at the edge of your data have a bit more leeway to be short):</p>
-
+<p>I prefer to use an expression that makes a distinction between lines that form closed contours and ones that don't (meaning that contours at the edge of your data have a bit more leeway to be short):</p>
 <pre><code>    (is_closed( $geometry ) AND $length &lt; 350) OR $length &lt; 100
 </code></pre>
-
-<p>All of the variables in QGIS with a dollar sign ($) in front of them are calculated variables that all features with a geometry have. The two used here are $length - the length of the line as a number and $geometry which gets passed to functions expecting a geometry, in this case is_closed which returns <em>true</em> if the line forms a closed loop.</p>
-
-<p>Then delete all of the lines selected by this (you&#39;ll need to set the layer to editable). Though an alternative approach would be to select all of the contours you want to <em>keep</em> (e.g. length &gt; 100) and save them as a new layer.</p>
-
-<p>The default theme for lines in QGIS is a semi-random colour of medium width, which probably isn&#39;t what you&#39;re after. I normally go for semi-transparent black lines with height labels.</p>
-
+<p>All of the variables in QGIS with a dollar sign ($) in front of them are calculated variables that all features with a geometry have. The two used here are <em>$length</em> - the length of the line as a number and <em>$geometry</em> which gets passed to functions expecting a geometry, in this case is_closed which returns <em>true</em> if the line forms a closed loop.</p>
+<p>Then delete all of the lines selected by this (you'll need to set the layer to editable). Though an alternative approach would be to select all of the contours you want to <em>keep</em> (e.g. length &gt; 100) and save them as a new layer.</p>
+<p>The default theme for lines in QGIS is a semi-random colour of medium width, which probably isn't what you're after. I normally go for semi-transparent black lines with height labels.</p>
 <h2>Additional notes.</h2>
-
 <h3>LiDAR types.</h3>
-
-<p>The distinction between DSM (Digital Surface Model) and DTM (Digital Terrain Model) is pretty important for this type of work. A surface model will include buildings and trees and make a very messy set of countours - so I&#39;d advise a terrain model which has those features processed out. My personal preference is to use a surface model for the hillshade, but a terrain model for both the pseudocolour layer and contours. That avoids both the messy contours of a DSM and the unnatural flat areas where buildings were removed from the DTM.</p>
-
+<p>The distinction between DSM (Digital Surface Model) and DTM (Digital Terrain Model) is pretty important for this type of work. A surface model will include buildings and trees and make a very messy set of countours - so I'd advise a terrain model which has those features processed out. My personal preference is to use a surface model for the hillshade, but a terrain model for both the pseudocolour layer and contours. That avoids both the messy contours of a DSM and the unnatural flat areas where buildings were removed from the DTM.</p>
 <h3>Blend Modes</h3>
-
-<p>Rather than using blend modes, an alternative to show both the elevation and hillshade would be to use transparency with a  &#39;normal&#39; blend mode. This gives a desaturated look that I&#39;ve always thought of as a bit &#39;plastic&#39;. This has the advantage of showing up contour lines a bit better no-matter what your colour ramp is. There&#39;s a comparison of the two below:</p>
-
+<p>Rather than using blend modes, an alternative to show both the elevation and hillshade would be to use transparency with a  'normal' blend mode. This gives a desaturated look that I've always thought of as a bit 'plastic'. This has the advantage of showing up contour lines a bit better no-matter what your colour ramp is. There's a comparison of the two below:</p>
 <p><img src="img/qgis-2-lidar-blend-comparison.jpg" alt="A comparison of different methods of stacking hillshades with pseudocolour imagery."></p>
-
 <h3>Further Contour Processing</h3>
-
-<p>When you zoom further in to the contours they might start to look a bit blocky (which makes sense - they came from blocks in the first place). The easiest way to get rid of this is with the smoothing tool, for which you&#39;ll need to be using QGIS with GRASS (GRASS is another open-source program that QGIS uses for additional functionality). In the processing toolbox (processing -&gt; toolbox) and search for v.generalise.smooth. There is a smoothing function built into QGIS - but it doesn&#39;t seem to give as good results for this task.</p>
-
-<p>I&#39;ve put together a comparison of the algorithms on a set of contours (not including the &#39;snakes&#39; algorithm which caused QGIS to crash whenever I tried it):</p>
-
+<p>When you zoom further in to the contours they might start to look a bit blocky (which makes sense - they came from blocks in the first place). The easiest way to get rid of this is with the smoothing tool, for which you'll need to be using QGIS with GRASS (GRASS is another open-source program that QGIS uses for additional functionality). In the processing toolbox (processing -&gt; toolbox) and search for v.generalise.smooth. There is a smoothing function built into QGIS - but it doesn't seem to give as good results for this task.</p>
+<p>I've put together a comparison of the algorithms on a set of contours (not including the 'snakes' algorithm which caused QGIS to crash whenever I tried it):</p>
 <p><img src="img/qgis-2-lidar-smoothing-comparison-boyle.jpg" alt="An example of the boyle smoothing algorithm available through GRASS.">
 <img src="img/qgis-2-lidar-smoothing-comparison-sliding-average.jpg" alt="An example of the sliding average smoothing algorithm available through GRASS.">
 <img src="img/qgis-2-lidar-smoothing-comparison-distance-weighting.jpg" alt="An example of the distance weighting smoothing algorithm available through GRASS.">
 <img src="img/qgis-2-lidar-smoothing-comparison-chaiken.jpg" alt="An example of the chaiken smoothing algorithm available through GRASS.">
 <img src="img/qgis-2-lidar-smoothing-comparison-hermite.jpg" alt="An example of the hermite smoothing algorithm available through GRASS."></p>
-
-<p>From these, I&#39;d personally choose the &#39;distance weighting&#39; algorithm as it seems to produce the smoothest results (assuming aesthetics are the only aim here) with &#39;chaiken&#39; being a good candidate for maintaining shape. Though it&#39;s worth pointing out that these algorithms are topologically &#39;dumb&#39; and don&#39;t care if the smoothing causes contour lines to cross themselves or other lines.</p>
-
+<p>From these, I'd personally choose the 'distance weighting' algorithm as it seems to produce the smoothest results (assuming aesthetics are the only aim here) with 'chaiken' being a good candidate for maintaining shape. Though it's worth pointing out that these algorithms are topologically 'dumb' and don't care if the smoothing causes contour lines to cross themselves or other lines.</p>
+</div>
 </body>
-
 </html>

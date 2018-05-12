@@ -12,6 +12,45 @@ body {
   counter-reset: c2;
 }
 
+/*Nav Bar*/
+.nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color:#e6dc96;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  width: 100vw;
+}
+
+.nav-bar a {
+  margin: 0;
+  display: inline-block;
+  text-align: centre;
+  vertical-align: middle;
+  padding: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
+  height: 2em;
+}
+
+.nav-bar a:hover {
+  background: #ddd;
+}
+
+.nav-bar img {
+  display: inline;
+  width: 2em;
+  height: 2em;
+  vertical-align: middle;
+  padding-left: 2em;
+  margin: 0;
+}
+
+.main {
+  padding-top: 2em;
+}
+
 /*Formatting headings */
 
 h1, h2, h3, h4, h5, h6 {
