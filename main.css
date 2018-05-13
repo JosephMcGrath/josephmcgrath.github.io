@@ -23,6 +23,17 @@ body {
   width: 100vw;
 }
 
+.nav-bar p {
+  margin: 0;
+  display: inline-block;
+  text-align: centre;
+  vertical-align: middle;
+  padding: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
+  height: 2em;
+}
+
 .nav-bar a {
   margin: 0;
   display: inline-block;
@@ -115,8 +126,7 @@ h6:before {
 code {
   overflow-x: auto;
   font-size: 0.9em;
-  display: block;
-  padding: 0.25em;
+  padding: 0.125em;
   background-color: #0a0a0f;
   color: #ffffff;
   font-family: monospace;
@@ -124,6 +134,11 @@ code {
   margin-left: auto;
   margin-right: auto;
   max-width: 85%;
+}
+
+pre > code { 
+  display: block;
+  padding: 0.5em;
 }
 
 blockquote {
@@ -138,6 +153,7 @@ img {
   margin-right: auto;
   display: block;
   max-width: 100%;
+  max-height: 100vh;
 }
 
 /*Formatting links */
