@@ -65,13 +65,17 @@ class site_press():
         return string
     
     def blog_path(self, path, dir_out = 'blog'):
-        """Alters a markdown file path to be under the blog directory."""
-        file_name = self.webify(os.path.split(path)[-1])
+        """Alters a markdown file path to be under the blog directory (on disc)."""
+        file_name = self.blog_name(path)
+        file_name = os.path.splitext(file_name)[0] + '.html'
         
-        file_out = os.path.dirname(os.path.dirname(path))
         file_out = os.path.join(self.root_dir, dir_out, file_name)
-        file_out = os.path.splitext(file_out)[0] + '.html'
         return file_out
+    
+    def blog_name(self, path):
+        file_name = self.webify(os.path.split(path)[-1])
+        file_name = os.path.splitext(file_name)[0]
+        return file_name
     
     def render_blog(self, file_in):
         file_out = self.blog_path(file_in)
@@ -104,7 +108,7 @@ class site_press():
             blog_list.append(self.render_blog(this_blog))
         
         for this_blog in blog_list:
-            this_blog.url = self.webify(this_blog.file_path)
+            this_blog.url = self.blog_name(this_blog.file_path)
         
         page_out = page.render(title = 'Blogs',
                                style = self.css_style,
