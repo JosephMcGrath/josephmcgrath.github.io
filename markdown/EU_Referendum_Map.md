@@ -2,6 +2,16 @@
 @author = Joe McGrath
 @date_created = 2018-05-13
 @description = Basic exploratory mapping of the results of the EU referendum.
+@keyword = EU
+@keyword = European Union
+@keyword = Referendum
+@keyword = Mapping
+@keyword = Election
+@keyword = SpatiaLite
+@keyword = QGIS
+@map = j-a004-01
+@map = j-a004-02
+@map = j-a004-03
 
 It's been a while since the UK had it's referendum on membership and I've been sitting on the data that came out of it for a while now. I *did* do some maps at the time, I wasn't too happy with them. This is just a quick write up of me going back over the mapping the results.
 

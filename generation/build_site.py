@@ -16,13 +16,14 @@ class simple_markdown():
         with open(file_path, 'r') as f:
             lines_in = f.readlines()
         
+        self.file_path = file_path
         self.markdown = ''.join([x for x in lines_in if not re.match(r'^\@', x)])
         self.html = markdown.markdown(self.markdown)
         self.title = [x for x in lines_in if re.match(r'^\# ', x)][0][1:].strip()
         meta_temp = [x for x in lines_in if re.match(r'^\@', x)]
         meta_temp = [re.split('=', x[1:]) for x in meta_temp]
-        self.meta = {key.strip() : value.strip() for key, value in meta_temp}
-        self.meta['title'] = self.title
+        self.meta = [(key.strip(), value.strip()) for key, value in meta_temp]
+        self.meta.append(('title', self.title))
         
 
 class site_press():
@@ -43,10 +44,10 @@ class site_press():
         
         page_title = 'Joe McGrath'
         
-        metadata = {'title' : page_title,
-                    'description' : "Joe McGrath's personal site.",
-                    'date_generated' : 'Now',
-                    }
+        metadata = [('title', page_title),
+                    ('description', "Joe McGrath's personal site."),
+                    ('date_generated', 'Now'),
+                    ]
         
         index_page = template.render(metadata = metadata,
                                      title = page_title,
@@ -103,12 +104,12 @@ class site_press():
             blog_list.append(self.render_blog(this_blog))
         
         for this_blog in blog_list:
-            this_blog.url = self.webify(this_blog.title)
+            this_blog.url = self.webify(this_blog.file_path)
         
         page_out = page.render(title = 'Blogs',
-                                   style = self.css_style,
-                                   body = b_list.render(blogs = blog_list)
-                                   )
+                               style = self.css_style,
+                               body = b_list.render(blogs = blog_list)
+                               )
         
         with open(self.blog_path('blogs'), 'w') as f:
             f.writelines(page_out)
