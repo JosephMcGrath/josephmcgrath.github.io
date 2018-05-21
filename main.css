@@ -6,7 +6,7 @@ body {
   padding: 1em;
   line-height: 20px;
   background-color:#fff0d9;
-  color: #000000
+  color: #000000;
   font-family: sans-serif;
   font-size: 12pt;
   counter-reset: c2;
@@ -17,7 +17,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  background-color:#e6dc96;
+  background-color:#326342;
   padding-top: 1px;
   padding-bottom: 1px;
   width: 100vw;
@@ -32,6 +32,8 @@ body {
   padding-left: 15px;
   padding-right: 15px;
   height: 2em;
+  color: #fff0d9;
+  font-weight: bold;
 }
 
 .nav-bar a {
@@ -43,10 +45,12 @@ body {
   padding-left: 15px;
   padding-right: 15px;
   height: 2em;
+  color: #000000;
+  background: #4d9965;
 }
 
 .nav-bar a:hover {
-  background: #ddd;
+  background: #ffe1b2;
 }
 
 .nav-bar img {
