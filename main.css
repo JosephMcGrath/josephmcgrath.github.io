@@ -49,6 +49,10 @@ body {
   background: #4d9965;
 }
 
+.nav-bar a:visited {
+  color: #000000;
+}
+
 .nav-bar a:hover {
   background: #ffe1b2;
 }
@@ -130,7 +134,8 @@ h6:before {
 code {
   overflow-x: auto;
   font-size: 0.9em;
-  padding: 0.125em;
+  padding-left: 0.125em;
+  padding-right: 0.125em;
   background-color: #0a0a0f;
   color: #ffffff;
   font-family: monospace;
@@ -157,7 +162,7 @@ img {
   margin-right: auto;
   display: block;
   max-width: 85%;
-  max-height: 100vh;
+  max-height: 90vh;
 }
 
 /*Formatting links */
