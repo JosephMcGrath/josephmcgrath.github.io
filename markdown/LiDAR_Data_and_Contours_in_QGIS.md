@@ -1,4 +1,4 @@
-# LiDAR Data and Contours in QGIS
+# LiDAR Data and Contours in QGIS 2
 @date_created = 2017-08-19  
 @author = Joe McGrath  
 @description = A guide to visualising LiDAR and creating contours in QGIS 2. 

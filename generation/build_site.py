@@ -17,14 +17,20 @@ class simple_markdown():
             lines_in = f.readlines()
         
         self.file_path = file_path
-        self.markdown = ''.join([x for x in lines_in if not re.match(r'^\@', x)])
+        self.markdown = ''.join([x
+                                 for x in lines_in
+                                 if not re.match(r'^\@', x)]
+                                 )
         self.html = markdown.markdown(self.markdown)
-        self.title = [x for x in lines_in if re.match(r'^\# ', x)][0][1:].strip()
+        self.title = [x
+                      for x in lines_in
+                      if re.match(r'^\# ', x)
+                      ][0][1:].strip()
         meta_temp = [x for x in lines_in if re.match(r'^\@', x)]
         meta_temp = [re.split('=', x[1:]) for x in meta_temp]
         self.meta = [(key.strip(), value.strip()) for key, value in meta_temp]
         self.meta.append(('title', self.title))
-        
+
 
 class site_press():
     
