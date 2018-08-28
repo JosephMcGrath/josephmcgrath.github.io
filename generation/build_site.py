@@ -9,6 +9,7 @@ import os
 import jinja2
 import markdown
 import re
+import datetime
 
 class simple_markdown():
     
@@ -28,8 +29,28 @@ class simple_markdown():
                       ][0][1:].strip()
         meta_temp = [x for x in lines_in if re.match(r'^\@', x)]
         meta_temp = [re.split('=', x[1:]) for x in meta_temp]
-        self.meta = [(key.strip(), value.strip()) for key, value in meta_temp]
-        self.meta.append(('title', self.title))
+        meta_temp.append(('title', self.title))
+        self.meta = self.consolidate_meta(meta_temp)
+    
+    def consolidate_meta(self, meta_seq):
+        temp = [(self.strip_whitespace(key), self.strip_whitespace(value))
+                for key, value
+                in meta_seq
+                ]
+        keys = set()
+        [keys.add(x[0]) for x in temp]
+        
+        output = {}
+        for this_key in sorted(keys):
+            output[this_key] = ','.join([x[1]
+                                         for x in temp
+                                         if x[0] == this_key
+                                         ]
+                                        )
+        return output
+    
+    def strip_whitespace(self, text):
+        return re.sub(r'(^\s+)|(\s+$)', '', text)
 
 
 class site_press():
@@ -50,10 +71,10 @@ class site_press():
         
         page_title = 'Joe McGrath'
         
-        metadata = [('title', page_title),
-                    ('description', "Joe McGrath's personal site."),
-                    ('date_generated', 'Now'),
-                    ]
+        metadata = {'title' : page_title,
+                    'description' : "Joe McGrath's personal site.",
+                    'date_generated' : datetime.datetime.now().isoformat(),
+                    }
         
         index_page = template.render(metadata = metadata,
                                      title = page_title,
