@@ -1,6 +1,7 @@
 # Voronoi Polygons and Spatial Views in SpatiaLite
 @ author = Joe McGrath
 @ date_created = 2018-05-15
+@description = Creating Voronoi polygons live in SpatiaLite with examples.
 @ keyword = SpatiaLite 
 @ keyword = Voronoi 
 @ keyword = QGIS 
@@ -8,7 +9,7 @@
 @ keyword = QGIS 3 
 @ keyword = Spatial Views 
 @ keyword = SQL 
-@keyword = Guide 
+@ keyword = Guide 
 
 <img src="img/voronoi_example.jpg" alt="An example set of voronoi polygons created using the mechanism outlined below.">
 
