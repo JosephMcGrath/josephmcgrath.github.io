@@ -53,11 +53,16 @@
 
     <script>
     (function() {
+      var christmas_time = new Date(
+        "Dec 25, " + new Date().getFullYear()
+      ).getTime();
+
       var decoration = ["♫", "🎅", "☃", "🎁", "☆", "🎄", "☆", "🎁", "☃", "🎅", "♫"];
       var rotation = 0;
+      var show_santa = true;
 
       function update_decoration() {
-        rotation = (rotation + 1) % decoration.length;
+        rotation = (rotation + 1) % (decoration.length - 1);
         var new_decoration = decoration
           .slice(rotation, decoration.length - 1)
           .concat(decoration.slice(0, rotation))
@@ -69,11 +74,20 @@
         }
       }
 
+      function flashing_santa() {
+        var decorations = document.querySelectorAll('.flashing_santa');
+        show_santa = !show_santa;
+        for (var i = 0; i < decorations.length; i++) {
+          var el = decorations[i];
+          if (show_santa) {
+            el.textContent = "🎅" + el.textContent + "🎅";
+          } else {
+            el.textContent = el.textContent.replace(/🎅/g, '');
+          }
+        }
+      }
+
       function update_christmas_timer() {
-        //Calculate the timing.
-        var christmas_time = new Date(
-          "Dec 25, " + new Date().getFullYear()
-        ).getTime();
         var now = new Date().getTime();
         var distance = christmas_time - now;
 
@@ -86,7 +100,6 @@
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
         var output =
-          "🎅" +
           days +
           "d " +
           hours +
@@ -94,8 +107,7 @@
           minutes +
           "m " +
           seconds +
-          "s " +
-          "🎅";
+          "s ";
 
         //Update the timer
         document.getElementById("to-christmas").innerHTML = output;
@@ -104,6 +116,7 @@
       function update() {
         update_decoration();
         update_christmas_timer();
+        flashing_santa();
       }
 
       setInterval(update, 500);
@@ -117,8 +130,8 @@
     <div class = "whole">
         <div class = "text-box">
             <p class = "decoration">♫🎅☃🎁☆🎄☆🎁☃🎅♫</p>
-            <p>🎅Time until Christmas:🎅</p>
-            <p id = "to-christmas">🎅🎅d🎅h🎅m🎅s🎅</p>
+            <p class="flashing_santa">🎅Time until Christmas:🎅</p>
+            <p id = "to-christmas" class = "flashing_santa">🎅🎅d🎅h🎅m🎅s🎅</p>
             <p class = "decoration">♫🎅☃🎁☆🎄☆🎁☃🎅♫</p>
         </div>
     </div>
