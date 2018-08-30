@@ -31,6 +31,10 @@
         height: 75%;
         margin: auto;
         padding: 5px;
+        box-shadow: 5px 7px;
+        border-color: hsl(0, 0%, 100%);
+        border-style: ridge;
+        border-width: 4px;
     }
 
     p {
@@ -80,9 +84,9 @@
         for (var i = 0; i < decorations.length; i++) {
           var el = decorations[i];
           if (show_santa) {
-            el.textContent = "🎅" + el.textContent + "🎅";
+            el.textContent = el.textContent.replace(/🎁/g, '🎅');
           } else {
-            el.textContent = el.textContent.replace(/🎅/g, '');
+            el.textContent = el.textContent.replace(/🎅/g, '🎁');
           }
         }
       }
