@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    
+    <title>Ho ho ho!</title>
+    
+    <style type="text/css">
+    body {
+        max-width: 1000px;
+        margin: auto;
+        padding: 1em;
+        text-align: center;
+        font-family: sans-serif;
+        background-color: hsl(0, 75%, 65%);
+        font-size: 40px;
+    }
+    
+    div {
+        background-color: hsl(0, 75%, 95%);
+    }
+    
+    .whole {
+        width: 100%;
+        height: 100%;
+        background-color: hsla(0, 0%, 0%, 0%);
+    }
+    
+    .text-box {
+        width: 75%;
+        height: 75%;
+        margin: auto;
+        padding: 5px;
+    }
+    
+    p {
+        padding: 1px
+    }
+    
+    body {
+        background-image: linear-gradient(45deg,
+                                          hsl(0, 95%, 65%) 25%,
+                                          hsl(0, 0%, 100%) 25%,
+                                          hsl(0, 0%, 100%) 50%,
+                                          hsl(0, 95%, 65%) 50%,
+                                          hsl(0, 95%, 65%) 75%,
+                                          hsl(0, 0%, 100%) 75%,
+                                          hsl(0, 0%, 100%) 100%);
+        background-size: 40.00px 40.00px;
+    }
+    
+    </style>
+    
+    <script>
+        
+        function update_christmas_timer(){
+            //Calculate the timing.
+            var christmas_time = new Date("Dec 25, "+(new Date()).getFullYear()).getTime();
+            var now = new Date().getTime();
+            var distance = christmas_time - now;
+            
+            //Format the output
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            var output = "🎅" +
+                         days + "d " +
+                         hours + "h " +
+                         minutes + "m " +
+                         seconds + "s " +
+                         "🎅";
+            
+            //Update the timer
+            document.getElementById("to-christmas").innerHTML =  output;
+        }
+        
+        // Update the count down every 1 second
+        var x = setInterval(update_christmas_timer, 1000);
+        
+    </script>
+    
+</head>
+
+<body>
+    <div class = "whole">
+        <div class = "text-box">
+            <p id = "decoration">♫🎅☃🎁☆🎄☆🎁☃🎅♫</p>
+            <p id>🎅Time until Christmas:🎅</p>
+            <p id = "to-christmas">🎅🎅d🎅h🎅m🎅s🎅</p>
+            <p id = "decoration">♫🎅☃🎁☆🎄☆🎁☃🎅♫</p>
+        </div>
+    </div>
+</body>
+
+</html>
