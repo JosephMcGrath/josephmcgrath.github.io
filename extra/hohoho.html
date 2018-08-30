@@ -2,9 +2,9 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    
+
     <title>Ho ho ho!</title>
-    
+
     <style type="text/css">
     body {
         max-width: 1000px;
@@ -15,28 +15,28 @@
         background-color: hsl(0, 75%, 65%);
         font-size: 40px;
     }
-    
+
     div {
         background-color: hsl(0, 75%, 95%);
     }
-    
+
     .whole {
         width: 100%;
         height: 100%;
         background-color: hsla(0, 0%, 0%, 0%);
     }
-    
+
     .text-box {
         width: 75%;
         height: 75%;
         margin: auto;
         padding: 5px;
     }
-    
+
     p {
         padding: 1px
     }
-    
+
     body {
         background-image: linear-gradient(45deg,
                                           hsl(0, 95%, 65%) 25%,
@@ -48,48 +48,91 @@
                                           hsl(0, 0%, 100%) 100%);
         background-size: 40.00px 40.00px;
     }
-    
+
     </style>
-    
+
     <script>
-        
-        function update_christmas_timer(){
-            //Calculate the timing.
-            var christmas_time = new Date("Dec 25, "+(new Date()).getFullYear()).getTime();
-            var now = new Date().getTime();
-            var distance = christmas_time - now;
-            
-            //Format the output
-            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            
-            var output = "🎅" +
-                         days + "d " +
-                         hours + "h " +
-                         minutes + "m " +
-                         seconds + "s " +
-                         "🎅";
-            
-            //Update the timer
-            document.getElementById("to-christmas").innerHTML =  output;
+    (function() {
+      var christmas_time = new Date(
+        "Dec 25, " + new Date().getFullYear()
+      ).getTime();
+
+      var decoration = ["♫", "🎅", "☃", "🎁", "☆", "🎄", "☆", "🎁", "☃", "🎅", "♫"];
+      var rotation = 0;
+      var show_santa = true;
+
+      function update_decoration() {
+        rotation = (rotation + 1) % (decoration.length - 1);
+        var new_decoration = decoration
+          .slice(rotation, decoration.length - 1)
+          .concat(decoration.slice(0, rotation))
+          .join('');
+
+        var decorations = document.querySelectorAll('.decoration');
+        for (var i = 0; i < decorations.length; i++) {
+          decorations[i].textContent = new_decoration;
         }
-        
-        // Update the count down every 1 second
-        var x = setInterval(update_christmas_timer, 1000);
-        
+      }
+
+      function flashing_santa() {
+        var decorations = document.querySelectorAll('.flashing_santa');
+        show_santa = !show_santa;
+        for (var i = 0; i < decorations.length; i++) {
+          var el = decorations[i];
+          if (show_santa) {
+            el.textContent = "🎅" + el.textContent + "🎅";
+          } else {
+            el.textContent = el.textContent.replace(/🎅/g, '');
+          }
+        }
+      }
+
+      function update_christmas_timer() {
+        var now = new Date().getTime();
+        var distance = christmas_time - now;
+
+        //Format the output
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor(
+          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        var output =
+          days +
+          "d " +
+          hours +
+          "h " +
+          minutes +
+          "m " +
+          seconds +
+          "s ";
+
+        //Update the timer
+        document.getElementById("to-christmas").innerHTML = output;
+      }
+
+      function update() {
+        update_decoration();
+        update_christmas_timer();
+        flashing_santa();
+      }
+
+      setInterval(update, 500);
+    })();
+
     </script>
-    
+
 </head>
 
 <body>
     <div class = "whole">
         <div class = "text-box">
-            <p id = "decoration">♫🎅☃🎁☆🎄☆🎁☃🎅♫</p>
-            <p id>🎅Time until Christmas:🎅</p>
-            <p id = "to-christmas">🎅🎅d🎅h🎅m🎅s🎅</p>
-            <p id = "decoration">♫🎅☃🎁☆🎄☆🎁☃🎅♫</p>
+            <p class = "decoration">♫🎅☃🎁☆🎄☆🎁☃🎅♫</p>
+            <p class="flashing_santa">🎅Time until Christmas:🎅</p>
+            <p id = "to-christmas" class = "flashing_santa">🎅🎅d🎅h🎅m🎅s🎅</p>
+            <p class = "decoration">♫🎅☃🎁☆🎄☆🎁☃🎅♫</p>
         </div>
     </div>
 </body>
