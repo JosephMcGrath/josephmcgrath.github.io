@@ -61,7 +61,7 @@
         "Dec 25, " + new Date().getFullYear()
       ).getTime();
 
-      var decoration = ["♫", "🎅", "☃", "🎁", "☆", "🎄", "☆", "🎁", "☃", "🎅", "♫"];
+      var decoration = ["♫", "🎅", "☃", "🎁", "☆", "🎄", "❄", "♫", "🎅", "☃", "🎁", "☆", "🎄", "❄"];
       var rotation = 0;
       var show_santa = true;
 
@@ -84,35 +84,46 @@
         for (var i = 0; i < decorations.length; i++) {
           var el = decorations[i];
           if (show_santa) {
-            el.textContent = el.textContent.replace(/🎁/g, '🎅');
+            el.textContent = el.textContent.replace(/🎄/g, '🎅');
           } else {
-            el.textContent = el.textContent.replace(/🎅/g, '🎁');
+            el.textContent = el.textContent.replace(/🎅/g, '🎄');
           }
         }
       }
 
       function update_christmas_timer() {
-        var now = new Date().getTime();
-        var distance = christmas_time - now;
-
-        //Format the output
-        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        var hours = Math.floor(
-          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-        );
-        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        var output =
-          days +
-          "d " +
-          hours +
-          "h " +
-          minutes +
-          "m " +
-          seconds +
-          "s ";
-
+        var now = new Date();
+        
+        if (now.getMonth() == 11 && now.getDate() == 25){
+          var dec_the_halls = now.getSeconds() % (decoration.length - 1);
+          var output = decoration[dec_the_halls] +
+                       " ☆It's Christmas!☆ " +
+                       decoration[dec_the_halls];
+          
+        } else {
+          var distance = christmas_time - now.getTime();
+          
+          //Format the output
+          var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          var hours = Math.floor(
+            (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          );
+          var minutes = Math.floor(
+            (distance % (1000 * 60 * 60)) / (1000 * 60)
+          );
+          var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+          
+          var output =
+            days +
+            "d " +
+            hours +
+            "h " +
+            minutes +
+            "m " +
+            seconds +
+            "s ";
+          
+        }
         //Update the timer
         document.getElementById("to-christmas").innerHTML = output;
       }
@@ -133,10 +144,10 @@
 <body>
     <div class = "whole">
         <div class = "text-box">
-            <p class = "decoration">♫🎅☃🎁☆🎄☆🎁☃🎅♫</p>
-            <p class="flashing_santa">🎅Time until Christmas:🎅</p>
+            <p class = "decoration">♫🎅☃🎁☆🎄❄♫🎅☃🎁☆🎄❄</p>
+            <p class = "flashing_santa">🎅Time until Christmas:🎅</p>
             <p id = "to-christmas" class = "flashing_santa">🎅🎅d🎅h🎅m🎅s🎅</p>
-            <p class = "decoration">♫🎅☃🎁☆🎄☆🎁☃🎅♫</p>
+            <p class = "decoration">♫🎅☃🎁☆🎄❄♫🎅☃🎁☆🎄❄</p>
         </div>
     </div>
 </body>
