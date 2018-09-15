@@ -70,7 +70,7 @@ body {
   padding-top: 2em;
 }
 
-/*Formatting headings */
+/*Headings */
 
 h1, h2, h3, h4, h5, h6 {
   text-decoration: underline;
@@ -131,6 +131,7 @@ h6:before {
   content: ">>>>";
 }
 
+/*Code*/
 code {
   overflow-x: auto;
   font-size: 0.9em;
@@ -150,22 +151,24 @@ pre > code {
   padding: 0.5em;
 }
 
+/*Quotes*/
 blockquote {
   padding: 0.5em;
   border-left: 0.5em #050505 solid;
   background-color:#e6cfac;
 }
 
+/*Images*/
 img {
   padding: 0.5em;
   margin-left: auto;
   margin-right: auto;
   display: block;
-  max-width: 85%;
+  max-width: 95%;
   max-height: 90vh;
 }
 
-/*Formatting links */
+/*Links */
 a {
   text-decoration: underline;
   font-weight: bold;
@@ -185,7 +188,7 @@ h1 > a {
   color: #000000
 }
 
-/*Formatting tables */
+/*Tables */
 table, th, td {
   border: 2px solid white;
   border-collapse: collapse;
