@@ -8,13 +8,18 @@ import datetime
 
 
 class simple_markdown:
+
+    markdown_extensions = ["fenced_code"]
+
     def __init__(self, file_path):
         with open(file_path, "r") as f:
             lines_in = f.readlines()
 
         self.file_path = file_path
         self.markdown = "".join([x for x in lines_in if not re.match(r"^\@", x)])
-        self.html = markdown.markdown(self.markdown)
+        self.html = markdown.markdown(
+            self.markdown, extensions=self.markdown_extensions
+        )
         self.title = [x for x in lines_in if re.match(r"^\# ", x)][0][1:].strip()
         meta_temp = [x for x in lines_in if re.match(r"^\@", x)]
         meta_temp = [re.split("=", x[1:]) for x in meta_temp]
