@@ -70,6 +70,27 @@ body {
   padding-top: 2em;
 }
 
+.block {
+  padding: 2em;
+  margin: 1em;
+  border: 1px solid #ccc;
+}
+
+.button {
+  padding: 1em;
+  background: #4d9965;
+  text-align: centre;
+  vertical-align: middle;
+  margin: auto;
+  width: 50%;
+  color: #000000;
+}
+
+.button:visited {
+  color: #000000;
+}
+
+
 /*Headings */
 
 h1, h2, h3, h4, h5, h6 {
