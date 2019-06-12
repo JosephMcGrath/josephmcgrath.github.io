@@ -5,6 +5,7 @@
   <meta name="author" content="Joe McGrath"/>
   <meta name="date_created" content="2018-05-15"/>
   <meta name="description" content="Creating Voronoi polygons live in SpatiaLite with examples."/>
+  <meta name="finished" content="True"/>
   <meta name="keyword" content="SpatiaLite,Voronoi,QGIS,QGIS 2,QGIS 3,Spatial Views,SQL,Guide"/>
   <meta name="title" content="Voronoi Polygons and Spatial Views in SpatiaLite"/>
 
@@ -25,8 +26,7 @@
     <p>Joe McGrath</p>
     <a href="/index.html">Home</a>
     <a href="/blog/blogs.html">Blogs</a>
-    <!--<a href="/map/maps.html">Maps</a>
-    <a href="/about.html">About</a>-->
+    <!--<a href="/map/maps.html">Maps</a>-->
 </div>
 <div class = "main">
 <h1>Voronoi Polygons and Spatial Views in SpatiaLite</h1>
@@ -66,15 +66,16 @@
 <p>But first, we need some data to work with. I'm just using a set of randomly generated points.</p>
 <h3>Generating Example Data</h3>
 <p>The table <code>base_point</code> is the stand-in for an actual input data.</p>
-<pre><code>CREATE TABLE base_point (
+<pre><code class="sql">CREATE TABLE base_point (
     pid INTEGER PRIMARY KEY
   , point_set INTEGER NOT NULL /*A Vorojoi diagram will be created for each unique entry in this column.*/
   , some_data VARCHAR /*Some example data to attach to the outputs.*/
   , the_geom POINT
 );
 </code></pre>
+
 <p>Then registering this base table so it's visible in QGIS (27700 is the reference id for British National Grid). I tend to use the <code>RecoverGeometryColumn</code> function to register base geometry columns rather than modifying the <code>geometry_columns</code> table as it takes the inputs as text rather than a lookup value for each geometry type. It also lends itself to generating a spatial index at the same time.</p>
-<pre><code>SELECT
+<pre><code class="sql">SELECT
     RecoverGeometryColumn('base_point',
                           'the_geom',
                           27700,
@@ -83,8 +84,9 @@
                           )
   , CreateSpatialIndex('base_point', 'the_geom');
 </code></pre>
+
 <p>Then generating a set of points to work with. Because of the size of number <code>RANDOM()</code> generates, they need to be divided down to values that fit in a reasonable area:</p>
-<pre><code>/*Populate with random points.*/
+<pre><code class="sql">/*Populate with random points.*/
 INSERT INTO base_point
     (point_set, some_data, the_geom)
 VALUES
@@ -106,12 +108,14 @@ VALUES
   , (2, 'the', MakePoint(ABS(RANDOM() / POWER(10, 16)), ABS(RANDOM() / POWER(10, 16)), 27700))
   , (1, 'output', MakePoint(ABS(RANDOM() / POWER(10, 16)), ABS(RANDOM() / POWER(10, 16)), 27700));
 </code></pre>
+
 <p>One additional spanner I'm throwing in the works is the fact that, in normal usage rows will be deleted out of the base points. If this wasn't the case, splitting up the voronoi polygons later would be a bit simpler and process quicker.</p>
-<pre><code>DELETE FROM base_point WHERE pid = 2;
+<pre><code class="sql">DELETE FROM base_point WHERE pid = 2;
 </code></pre>
+
 <h3>Merging the Inputs and creating the polygons</h3>
 <p>Merging the inputs and generating the raw voronoi polygons is simple enough to do in a single step using <code>ST_Union</code> and <code>GROUP BY</code>:</p>
-<pre><code>CREATE VIEW voronoi_raw AS SELECT
+<pre><code class="sql">CREATE VIEW voronoi_raw AS SELECT
     point_set
   , VoronojDiagram(ST_Union(the_geom), /*Merge the points for each set into a single multipolygon.*/
                    0, /*We want the polygons, not just the boundaries.*/
@@ -122,10 +126,11 @@ FROM
 GROUP BY
     point_set;
 </code></pre>
+
 <p>So now we've got a table with one row for each collection of points. The next step is to split them up.</p>
 <h3>Splitting the Polygons</h3>
 <p>The theory of this is really simple. Just use <code>GeometryN</code> to split the geometries. The problem being that SQLite doesn't natively have any sort of <code>generate_series</code> function like PostGIS. The naive approach would be to use the pid column like:</p>
-<pre><code>SELECT
+<pre><code class="sql">SELECT
     p.pid
   , v.point_set
   , GeometryN(v.the_geom,
@@ -136,9 +141,10 @@ FROM
     CROSS JOIN voronoi_raw AS v
 WHERE GeometryN(v.the_geom, p.pid) IS NOT NULL;
 </code></pre>
+
 <p>But this assumes that the pid column will be an unbroken sequence from 1 to the number of rows in the table. That's not an <em>unreasonable</em> assumption but the moment the input does into actual use, there's going to be missing or out-of sequence values and there'll be missing geometries. It's also arguably breaks the first normal form by assuming a certain order to the rows.</p>
 <p>A more robust approach is to use a subquery to generate a set of values based on the number of parts in each geomery.</p>
-<pre><code>CREATE VIEW voronoi_split AS SELECT
+<pre><code class="sql">CREATE VIEW voronoi_split AS SELECT
     p.pid
   , v.point_set
   , GeometryN(v.the_geom,
@@ -150,11 +156,12 @@ FROM
 WHERE
     (SELECT COUNT(*) FROM base_point AS x WHERE x.pid &lt;= p.pid) &lt;= NumGeometries(v.the_geom);
 </code></pre>
+
 <p>So now we've got a view with one row per polygon, but no data attached.</p>
 <p>Another way to work it might be to have a pre-generated table of a numbers, but that requires a certain knowledge about the input data set and I'm trying to make something that's theoretically robust - even if it's a little impractical (and makes some scrifices on performance).</p>
 <h3>Re-joining the Data</h3>
 <p>Joining the data from the base point table's very easy. Just a spatial inner join (as the points are guarenteed to be within their own voronoi polygon):</p>
-<pre><code>CREATE VIEW voronoi_out AS SELECT
+<pre><code class="sql">CREATE VIEW voronoi_out AS SELECT
     p.pid
   , p.point_set
   , p.some_data
@@ -164,13 +171,15 @@ FROM
     INNER JOIN voronoi_split AS v ON ST_Within(p.the_geom, v.the_geom) AND
                                      p.point_set = v.point_set;
 </code></pre>
+
 <p>And checking the final view:</p>
-<pre><code>SELECT * FROM voronoi_out;
+<pre><code class="sql">SELECT * FROM voronoi_out;
 </code></pre>
+
 <p>Shows we've got all the data through intact. If I was just working in SpatiaLite on it's own this is where the process could stop - but I'm after visualising the results in QGIS.</p>
 <h3>Registering the View for use in QGIS</h3>
 <p>To register a view, we need a base table with a geometry of the same kind. If we had more tables with polygons we <em>could</em> register against that - but it starts to build up unexpected dependencies in the database. I favour a table of dummy geometries:</p>
-<pre><code>CREATE TABLE dummy_geom (
+<pre><code class="sql">CREATE TABLE dummy_geom (
     pid INTEGER PRIMARY KEY
   , the_poly POLYGON
 );
@@ -183,17 +192,20 @@ SELECT
                           'XY'
                           );
 </code></pre>
+
 <p>Especially combined with the option to hide the registered table by altering the <code>geometry_columns_auth</code> table:</p>
-<pre><code>UPDATE geometry_columns_auth
+<pre><code class="sql">UPDATE geometry_columns_auth
 SET hidden = 1
 WHERE f_table_name = 'dummy_geom';
 </code></pre>
+
 <p>And then it's just a simple <code>INSERT</code> to register the view:</p>
-<pre><code>INSERT INTO views_geometry_columns
+<pre><code class="sql">INSERT INTO views_geometry_columns
     (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
 VALUES
     ('voronoi_out', 'the_geom', 'pid', 'dummy_geom', 'the_poly', 0);
 </code></pre>
+
 <p>Which makes it available for viewing in QGIS.</p>
 <p><img src="img/voronoi_load.jpg" alt="The QGIS 3 menu for loading the voronoi polygons."></p>
 </div>

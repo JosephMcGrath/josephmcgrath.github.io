@@ -5,6 +5,7 @@
   <meta name="author" content="Joe McGrath"/>
   <meta name="date_created" content="2018-09-15"/>
   <meta name="description" content="Generating simple overviews with GPS data."/>
+  <meta name="finished" content="True"/>
   <meta name="keyword" content="GPS,QGIS,PostGIS,Visualisation"/>
   <meta name="map" content="j-a002-01"/>
   <meta name="title" content="Visualising GPS Logs"/>
@@ -26,8 +27,7 @@
     <p>Joe McGrath</p>
     <a href="/index.html">Home</a>
     <a href="/blog/blogs.html">Blogs</a>
-    <!--<a href="/map/maps.html">Maps</a>
-    <a href="/about.html">About</a>-->
+    <!--<a href="/map/maps.html">Maps</a>-->
 </div>
 <div class = "main">
 <h1>Visualising GPS Logs</h1>
@@ -42,11 +42,12 @@
 <p>I opted to do most of my processing in-database as the project was likely to be fairly data-intensive and access to indexes etc while running seemed like a good idea due to the relatively large quantity of data I'm generating.</p>
 <p>At first, I stored the data in a simple SpatiaLite database that also joined consecutive points into lines if they passed an accuracy / timing threshold, but that quickly got clogged up with the volume of data I was trying to throw around through it on a regular basis. I switched to PostGIS, with an R script on the front end to throw the csvs in automatically using ogr2ogr. Once the data was in the database, trigger functions handled the rest.</p>
 <p>It taken a little while to tune the triggers so that they run in a reasonable time. I tried not to assume that the data was coming in the exact right order of files / rows, so I couldn't just look at the previous point to see if a line needed to be created so I had to pull out all of the point within a particular duration - a functional index turned out to be a good method here. For example:</p>
-<pre><code>CREATE INDEX gps_point_time_plus_20_idx
+<pre><code class="sql">CREATE INDEX gps_point_time_plus_20_idx
     ON gps_data.gps_point USING btree
-    (("time" + '00:00:20'::interval))
+    ((&quot;time&quot; + '00:00:20'::interval))
     TABLESPACE pg_default;
 </code></pre>
+
 <p>This resulted in a pipeline where I could just offload csv files into a folder whenever it was convenient, run the R script and have all my data run through my processing automatically.</p>
 <h2>Visualising the Output</h2>
 <p>Visualisation of this data has been quite a fun challenge, as it's got harder as time went on. When I only had a few points and lines I could have bold arrows on the lines and other decoration on my geometries. As the points built up things started to get more and more cluttered. A few of the problems I've noticed are:</p>
@@ -80,11 +81,12 @@
 </li>
 </ul>
 <p>The tricky part for my novice understanding of PostgreSQL was returning 'points within 20 seconds' from a variable point in time while keeping things quick. Eventually I came up with this index which does the job (but is limited to 20 second intervals):</p>
-<pre><code>CREATE INDEX gps_point_time_plus_20_idx
+<pre><code class="sql">CREATE INDEX gps_point_time_plus_20_idx
     ON gps_data.gps_point USING btree
-    (("time" + '00:00:20'::interval))
+    ((&quot;time&quot; + '00:00:20'::interval))
     TABLESPACE pg_default;
 </code></pre>
+
 <p>Which defines a <a href="https://www.postgresql.org/docs/9.1/static/indexes-expressional.html">functional index</a> on the result of adding 20 seconds to the point's timestamp. So far this has been scalling reasonably well as a long-term solution one and a half million points in.</p>
 </div>
 </body>

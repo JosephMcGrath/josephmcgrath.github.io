@@ -5,6 +5,7 @@
   <meta name="author" content="Joe McGrath"/>
   <meta name="date_created" content="2018-09-15"/>
   <meta name="description" content="Generating simple overviews with GPS data."/>
+  <meta name="finished" content="True"/>
   <meta name="keyword" content="Git,GIS,QGIS,GeoJSON,Version Control"/>
   <meta name="title" content="Version Control for GeoJSON with Git"/>
 
@@ -25,8 +26,7 @@
     <p>Joe McGrath</p>
     <a href="/index.html">Home</a>
     <a href="/blog/blogs.html">Blogs</a>
-    <!--<a href="/map/maps.html">Maps</a>
-    <a href="/about.html">About</a>-->
+    <!--<a href="/map/maps.html">Maps</a>-->
 </div>
 <div class = "main">
 <h1>Version Control for GeoJSON with Git</h1>
@@ -37,7 +37,7 @@
 <p>First out, I tried just initialising a Git repo on my data folder, editing Adobe data and looking at the diffs. This came out with 2 problems:</p>
 <ul>
 <li>QGIS saves GeoJSON to 15 decimal places. As I'm using British National Grid, this ends up being sub-picometer detail. I have absolutely no need for this and it inflates file sizes dramatically.</li>
-<li>Each feature is saved on a single line. This isn't a problem per se but means that<em>l </em>any* changes to a feature mean the whole feature (all properties and all coordinates) is marked as a diff. This makes actually spotting changes difficult.</li>
+<li>Each feature is saved on a single line. This isn't a problem per se but means that <em>any</em> changes to a feature mean the whole feature (all properties and all coordinates) is marked as a diff. This makes actually spotting changes difficult.</li>
 </ul>
 <h2>Parsing the Output</h2>
 <p>My solution to this problem was to write a <a href="https://github.com/JosephMcGrath/Misc-scripts/blob/master/python_3/reformat_geojson/reformat_geojson.py">quick Python script</a> to reformat the GeoJSON to better fit my needs by rounding off coordinates to the nearest cm and splitting each feature over multiple lines.</p>

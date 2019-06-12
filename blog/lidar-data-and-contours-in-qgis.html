@@ -5,6 +5,7 @@
   <meta name="author" content="Joe McGrath"/>
   <meta name="date_created" content="2017-08-19"/>
   <meta name="description" content="A guide to visualising LiDAR and creating contours in QGIS 2."/>
+  <meta name="finished" content="True"/>
   <meta name="keyword" content="QGIS,QGIS 2,LiDAR,Contours,Guide"/>
   <meta name="title" content="LiDAR Data and Contours in QGIS 2"/>
 
@@ -25,8 +26,7 @@
     <p>Joe McGrath</p>
     <a href="/index.html">Home</a>
     <a href="/blog/blogs.html">Blogs</a>
-    <!--<a href="/map/maps.html">Maps</a>
-    <a href="/about.html">About</a>-->
+    <!--<a href="/map/maps.html">Maps</a>-->
 </div>
 <div class = "main">
 <h1>LiDAR Data and Contours in QGIS 2</h1>
@@ -108,8 +108,9 @@
 <p>On fine-scale data like most LiDAR, you might find that the contours produced are a little on the noisey side. The most effective way to clean this up is to delete all of the short contours. To do this, use the 'Select by Expression' tool:</p>
 <p><img src="img/qgis-2-select-by-expression.jpg" alt="The location of the 'Select by Expression' dialog menu in QGIS."></p>
 <p>I prefer to use an expression that makes a distinction between lines that form closed contours and ones that don't (meaning that contours at the edge of your data have a bit more leeway to be short):</p>
-<pre><code>    (is_closed( $geometry ) AND $length &lt; 350) OR $length &lt; 100
+<pre><code class="qgis">(is_closed( $geometry ) AND $length &lt; 350) OR $length &lt; 100
 </code></pre>
+
 <p>All of the variables in QGIS with a dollar sign ($) in front of them are calculated variables that all features with a geometry have. The two used here are <em>$length</em> - the length of the line as a number and <em>$geometry</em> which gets passed to functions expecting a geometry, in this case is_closed which returns <em>true</em> if the line forms a closed loop.</p>
 <p>Then delete all of the lines selected by this (you'll need to set the layer to editable). Though an alternative approach would be to select all of the contours you want to <em>keep</em> (e.g. length &gt; 100) and save them as a new layer.</p>
 <p>The default theme for lines in QGIS is a semi-random colour of medium width, which probably isn't what you're after. I normally go for semi-transparent black lines with height labels.</p>

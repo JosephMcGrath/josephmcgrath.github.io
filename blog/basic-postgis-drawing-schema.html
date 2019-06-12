@@ -5,6 +5,7 @@
   <meta name="author" content="Joe McGrath"/>
   <meta name="date_created" content="2018-08-28"/>
   <meta name="description" content="A run-down of a schema I created to hold and process drawing data in PostGIS."/>
+  <meta name="finished" content="True"/>
   <meta name="keyword" content="PostGIS,QGIS,Digitisation"/>
   <meta name="map" content="j-a003-01,j-a003-02"/>
   <meta name="title" content="Basic PostGIS Drawing Schema"/>
@@ -26,8 +27,7 @@
     <p>Joe McGrath</p>
     <a href="/index.html">Home</a>
     <a href="/blog/blogs.html">Blogs</a>
-    <!--<a href="/map/maps.html">Maps</a>
-    <a href="/about.html">About</a>-->
+    <!--<a href="/map/maps.html">Maps</a>-->
 </div>
 <div class = "main">
 <h1>Basic PostGIS Drawing Schema</h1>
@@ -43,7 +43,7 @@
 <h2>Code</h2>
 <h3>Storing the Data</h3>
 <p>To quickly run through the SQL I used to create / hold the data. First the structure to put the data in:</p>
-<pre><code>CREATE SCHEMA drawing_data;
+<pre><code class="sql">CREATE SCHEMA drawing_data;
 
 CREATE TABLE drawing_data.label_position (
     label_position TEXT PRIMARY KEY
@@ -74,6 +74,7 @@ CREATE TABLE drawing_data.line_in (
         NOT NULL
 );
 </code></pre>
+
 <p>Which gives me all the information I need to be going on with. There might be an argument to streamline the set of fields used, but this'll do for now.</p>
 <h3>Joining up the Lines</h3>
 <p>Merging the individual segments into a series of polygons is a fairly straightforward 2 step process:</p>
@@ -82,7 +83,7 @@ CREATE TABLE drawing_data.line_in (
 <li>Convert any of the new lines that are closed into a polygon.</li>
 </ol>
 <p>Both of these steps are handled by this SQL:</p>
-<pre><code>CREATE OR REPLACE VIEW drawing_data.joined_line AS SELECT
+<pre><code class="sql">CREATE OR REPLACE VIEW drawing_data.joined_line AS SELECT
     MIN(line_in.oid) AS oid
   , line_in.drawing_name
   , line_in.item_category
@@ -111,22 +112,24 @@ WHERE
 ORDER BY
     ST_Area(ST_MakePolygon((x.the_geom).geom)) DESC;
 </code></pre>
+
 <p>The <code>joined_line</code> view merges all the lines based on their <code>drawing_name</code>, <code>item_category</code> and <code>item_name</code>, creates a single line where they join up and then breaks the separate elements of this geometry into separate records (so all of the objects of the same type are briefly a single multiline in here before being split off. After this, the <code>merged_polygon</code> view makes a polygon out of any closed rings, ordered so that larder polygons are rendered first (and won't cover smaller ones).</p>
 <p>A simple example of this is shown below - with a series of 4 lines being merged together into a rectangle while ignoring a standalone linestring with the same underlying data because it's not linked.</p>
 <p><img src="img/drawing_polygon_creation.jpg" alt="A series of separate lines merged into a polygon."></p>
 <p>Admittedly a lot of the actual work here is being done by <code>ST_LineMerge</code>, but I'm happy with the added level of versatility over just the raw function.</p>
 <h3>Identifying Errors</h3>
 <p>Working with this setup for a while worked pretty well, but did result in a few frustrating moments when trying to identify the breaks where one part of a long set of lines didn't <em>quite</em> connect up. To fix that I can just modify the polygon-generating view slightly:</p>
-<pre><code>    CREATE OR REPLACE VIEW drawing_data.broken_line AS  SELECT
-        row_number() OVER () AS pid
-      , x.drawing_name
-      , x.item_category
-      , x.item_name
-      , ST_Boundary((x.the_geom).geom) AS the_geom
-    FROM drawing_data.joined_line AS x
-    WHERE
-        NOT ST_IsClosed((x.the_geom).geom);
+<pre><code class="sql">CREATE OR REPLACE VIEW drawing_data.broken_line AS  SELECT
+    row_number() OVER () AS pid
+  , x.drawing_name
+  , x.item_category
+  , x.item_name
+  , ST_Boundary((x.the_geom).geom) AS the_geom
+FROM drawing_data.joined_line AS x
+WHERE
+    NOT ST_IsClosed((x.the_geom).geom);
 </code></pre>
+
 <p>Here, the inner query is the same, but rather than running any rings through <code>ST_MakePolygon</code>, I'm putting the non-ring outputs through <code>ST_Boundary</code>. As the boundary of a line is its end-points this creates a point geometry at the breaks in rings, letting them be easily knitted together.</p>
 <p>The result of this being something like this (with broken ends being the large black dots):</p>
 <p><img src="img/drawing_polygon_breaks.jpg" alt="Points identifying the breaks in linework at either end of a single line."></p>
@@ -134,7 +137,7 @@ ORDER BY
 <h3>Getting an Idea of Accuracy</h3>
 <p>Earlier, I said that I was recording the actual distances measured in addition to the line drawn. This was partially a concession to my budget tools and lack of experience with this kind of work but also I believe it's important to know <em>where</em> errors exist if it's practical to do so. Ideally all the lines would be the exact size measured, but I need to have all my lines joining perfectly to generate polygons and a few cursory measurements show that my walls aren't exactly perpendicular to each other.</p>
 <p>This view calculates a few relevant statistics about the difference between measured and digitised lengths:</p>
-<pre><code>CREATE OR REPLACE VIEW drawing_data.line_diffs AS SELECT
+<pre><code class="sql">CREATE OR REPLACE VIEW drawing_data.line_diffs AS SELECT
     line_in.oid
   , line_in.drawing_name
   , line_in.item_category
@@ -159,6 +162,7 @@ ORDER BY
           2
           ) DESC;
 </code></pre>
+
 <p>I've opted for a diverging colour scheme here to differentiate lines that are larger or smaller than their measurements. As they also increase in saturation out from 0% difference, that also makes finding absolute accuracy pretty easy too.</p>
 <p><img src="/map/j-a003-02.jpg" alt="The same plan of my flat as above, but with line accuracy overlaid."></p>
 <p>And from this it's pretty obvious that the worst inaccuracies are for multi-part measurements (e.g. from my front door to the bathroom doorframe). That makes a lot of sense as the handover spot isn't fixed. Most of the longest measurements are pretty good with the top half of the flat being a little over and the lower half being under.</p>
