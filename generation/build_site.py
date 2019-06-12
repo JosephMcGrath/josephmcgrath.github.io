@@ -111,8 +111,9 @@ class site_press:
             metadata=blog_in.meta,
         )
 
-        with open(file_out, "w") as f:
-            f.writelines(page_out)
+        if blog_in.finished:
+            with open(file_out, "w") as f:
+                f.writelines(page_out)
 
         return blog_in
 
