@@ -12,6 +12,7 @@
 @map = j-a004-01
 @map = j-a004-02
 @map = j-a004-03
+@finished = True
 
 It's been a while since the UK had it's referendum on membership and I've been sitting on the data that came out of it for a while now. I *did* do some maps at the time, I wasn't too happy with them. This is just a quick write up of me going back over the mapping the results.
 
@@ -32,69 +33,73 @@ The most obvious map to make of the election results is the percentage by which 
 
 To combine the table of vote results with their spatial extetents, I'm using SpatiaLite. This lets me use spatial SQL and store the data in a standalone file without much setup. After importing the data via the SpatiaLite GUI, I merged the data into a view:
 
-    CREATE INDEX os_dist_borough_unitary_region_join_idx ON os_dist_borough_unitary_region(code);
-    CREATE INDEX eu_ref_result_join_idx ON eu_ref_result(area_code);
-    
-    CREATE VIEW eu_ref_poly AS SELECT
-        r.PK_UID AS pid
-      , r.NAME AS region_name
-      , r.CODE AS region_code
-      , r.HECTARES AS area_ha
-      , d.Electorate AS electorate
-      , d.ExpectedBallots AS expected_ballots
-      , d.VerifiedBallotPapers AS verified_ballots
-      , d.Pct_Turnout AS pct_turnout
-      , d.Votes_Cast AS votes_cast
-      , d.Valid_Votes AS valid_votes
-      , d.Rejected_Ballots AS rejected_ballots
-      , d.Remain AS vote_remain
-      , d.Leave AS vote_leave
-      , d.Remain - d.Leave AS vote_ballance
-      , CAST((d.Remain - d.Leave) AS REAL) / d.Valid_Votes * 100 AS pct_vote_ballance
-      , r.the_geom AS the_geom
-    FROM
-        os_dist_borough_unitary_region AS r
-        INNER JOIN eu_ref_result AS d
-            ON r.code = d.area_code;
-    
-    INSERT INTO views_geometry_columns
-        (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
-    VALUES
-        ('eu_ref_poly', 'the_geom', 'pid', 'os_dist_borough_unitary_region', 'the_geom', 1);
+```sql
+CREATE INDEX os_dist_borough_unitary_region_join_idx ON os_dist_borough_unitary_region(code);
+CREATE INDEX eu_ref_result_join_idx ON eu_ref_result(area_code);
 
-To cleanly visualise this, I merged the votes columns into a percentage of the votes - with positive being more net votes to remain (using ````CAST```` to prevent the result coming out as an integer). And then loaded this into QGIS. When producing the maps I labelled them as 'Leave' and 'Remain' rather than positive or negative values.
+CREATE VIEW eu_ref_poly AS SELECT
+    r.PK_UID AS pid
+  , r.NAME AS region_name
+  , r.CODE AS region_code
+  , r.HECTARES AS area_ha
+  , d.Electorate AS electorate
+  , d.ExpectedBallots AS expected_ballots
+  , d.VerifiedBallotPapers AS verified_ballots
+  , d.Pct_Turnout AS pct_turnout
+  , d.Votes_Cast AS votes_cast
+  , d.Valid_Votes AS valid_votes
+  , d.Rejected_Ballots AS rejected_ballots
+  , d.Remain AS vote_remain
+  , d.Leave AS vote_leave
+  , d.Remain - d.Leave AS vote_ballance
+  , CAST((d.Remain - d.Leave) AS REAL) / d.Valid_Votes * 100 AS pct_vote_ballance
+  , r.the_geom AS the_geom
+FROM
+    os_dist_borough_unitary_region AS r
+    INNER JOIN eu_ref_result AS d
+        ON r.code = d.area_code;
+
+INSERT INTO views_geometry_columns
+    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
+VALUES
+    ('eu_ref_poly', 'the_geom', 'pid', 'os_dist_borough_unitary_region', 'the_geom', 1);
+```
+
+To cleanly visualise this, I merged the votes columns into a percentage of the votes - with positive being more net votes to remain (using ```CAST``` to prevent the result coming out as an integer). And then loaded this into QGIS. When producing the maps I labelled them as 'Leave' and 'Remain' rather than positive or negative values.
 
 ----
 
 After reviewing the data it seems that everything from the CSV came in as text. To fix this, I'm re-creating the view and casting to appropriate data types:
 
-    BEGIN;
-    
-    DROP VIEW eu_ref_poly;
-    
-    CREATE VIEW eu_ref_poly AS SELECT
-        r.PK_UID AS pid
-      , r.NAME AS region_name
-      , r.CODE AS region_code
-      , r.HECTARES AS area_ha
-      , CAST(d.Electorate AS INTEGER) AS electorate
-      , CAST(d.ExpectedBallots AS INTEGER) AS expected_ballots
-      , CAST(d.VerifiedBallotPapers AS INTEGER) AS verified_ballots
-      , CAST(d.Pct_Turnout AS REAL) AS pct_turnout
-      , CAST(d.Votes_Cast AS INTEGER) AS votes_cast
-      , CAST(d.Valid_Votes AS INTEGER) AS valid_votes
-      , CAST(d.Rejected_Ballots AS INTEGER) AS rejected_ballots
-      , CAST(d.Remain AS INTEGER) AS vote_remain
-      , CAST(d.Leave AS INTEGER) AS vote_leave
-      , CAST(d.Remain - d.Leave AS INTEGER) AS vote_ballance
-      , CAST((d.Remain - d.Leave) AS REAL) / d.Valid_Votes * 100 AS pct_vote_ballance
-      , r.the_geom AS the_geom
-    FROM
-        os_dist_borough_unitary_region AS r
-        INNER JOIN eu_ref_result AS d
-            ON r.code = d.area_code;
-    
-    COMMIT;
+```sql
+BEGIN;
+
+DROP VIEW eu_ref_poly;
+
+CREATE VIEW eu_ref_poly AS SELECT
+    r.PK_UID AS pid
+  , r.NAME AS region_name
+  , r.CODE AS region_code
+  , r.HECTARES AS area_ha
+  , CAST(d.Electorate AS INTEGER) AS electorate
+  , CAST(d.ExpectedBallots AS INTEGER) AS expected_ballots
+  , CAST(d.VerifiedBallotPapers AS INTEGER) AS verified_ballots
+  , CAST(d.Pct_Turnout AS REAL) AS pct_turnout
+  , CAST(d.Votes_Cast AS INTEGER) AS votes_cast
+  , CAST(d.Valid_Votes AS INTEGER) AS valid_votes
+  , CAST(d.Rejected_Ballots AS INTEGER) AS rejected_ballots
+  , CAST(d.Remain AS INTEGER) AS vote_remain
+  , CAST(d.Leave AS INTEGER) AS vote_leave
+  , CAST(d.Remain - d.Leave AS INTEGER) AS vote_ballance
+  , CAST((d.Remain - d.Leave) AS REAL) / d.Valid_Votes * 100 AS pct_vote_ballance
+  , r.the_geom AS the_geom
+FROM
+    os_dist_borough_unitary_region AS r
+    INNER JOIN eu_ref_result AS d
+        ON r.code = d.area_code;
+
+COMMIT;
+```
 
 While SQLite's fairly flexible on data types, QGIS is less so - making having the correct data types more important.
 
@@ -116,42 +121,44 @@ The result of which looks reassuringly similar to every other map of the results
 
 ## Adding Graphs
 
-An idea I've been playing around with for a while is to use the ````MAKEPOINT```` function in the database to produce a graph directly in QGIS. I'm not sure how well this will turn out - but there's one way to be sure and this is a good a place as any.
+An idea I've been playing around with for a while is to use the ```MAKEPOINT``` function in the database to produce a graph directly in QGIS. I'm not sure how well this will turn out - but there's one way to be sure and this is a good a place as any.
 
 ### Formatting the Points
 
 The SQL is pretty simple, I'm also keeping a few extra columns for reference. The only part that needs some explaination is the creation of a dummy table. I've done this so I can register the new view as a geometry table for QGIS to see (otherwise it's just a view that happens to have some geometry in it).
 
-    BEGIN;
-    
-    CREATE TABLE dummy_geom (
-        pid INTEGER PRIMARY KEY
-      , point_geom POINT
-    );
-    
-    SELECT
-        RecoverGeometryColumn('dummy_geom', 'point_geom', 27700, 'POINT', 'XY');
-    
-    UPDATE geometry_columns_auth
-    SET hidden = 1
-    WHERE f_table_name = 'dummy_geom';
-    
-    CREATE VIEW eu_ref_turnout_graph AS SELECT
-        pid
-      , region_code
-      , region_name
-      , electorate
-      , pct_turnout
-      , pct_vote_ballance
-      , MAKEPOINT(pct_vote_ballance, pct_turnout, 27700) AS the_geom
-    FROM eu_ref_poly;
-    
-    INSERT INTO views_geometry_columns
-        (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
-    VALUES
-        ('eu_ref_turnout_graph', 'the_geom', 'pid', 'dummy_geom', 'point_geom', 1);
-    
-    COMMIT;
+```sql
+BEGIN;
+
+CREATE TABLE dummy_geom (
+    pid INTEGER PRIMARY KEY
+  , point_geom POINT
+);
+
+SELECT
+    RecoverGeometryColumn('dummy_geom', 'point_geom', 27700, 'POINT', 'XY');
+
+UPDATE geometry_columns_auth
+SET hidden = 1
+WHERE f_table_name = 'dummy_geom';
+
+CREATE VIEW eu_ref_turnout_graph AS SELECT
+    pid
+  , region_code
+  , region_name
+  , electorate
+  , pct_turnout
+  , pct_vote_ballance
+  , MAKEPOINT(pct_vote_ballance, pct_turnout, 27700) AS the_geom
+FROM eu_ref_poly;
+
+INSERT INTO views_geometry_columns
+    (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
+VALUES
+    ('eu_ref_turnout_graph', 'the_geom', 'pid', 'dummy_geom', 'point_geom', 1);
+
+COMMIT;
+```
 
 All the points seem to have made it into QGIS without any trouble (so long as it's loaded as a SpatiaLite layer rather than a generic vector data source).
 
@@ -165,7 +172,7 @@ One other useful feature was to define the size of the points in 'metres at scal
 
 The results of percentage turnout of electorate against vote ballance is quite interesting. The overall pattern seems to be that districts that voted to leave generally had a higher proportion of the electorate turn out.
 
-## A Different Angle 
+## A Different Angle
 
 An aspect I'd like to explore is if there's any inherant bias in assessing percentage rather than actual vote counts. Just looking at the percentages makes it look like much more of a landslide than the actual 52% / 48% split. I don't know the criteria for defining the district borough unitary regions is - but I wouldn't be surprised if there was a trend for more densely populated urban regions to have higher total populations than rural ones.
 

@@ -8,6 +8,7 @@
 @keyword = QGIS
 @keyword = GeoJSON
 @keyword = Version Control
+@finished = True
 
 # Introduction
 
@@ -20,7 +21,7 @@ My current GIS platform of choice is QGIS, but in theory there's nothing stoppin
 First out, I tried just initialising a Git repo on my data folder, editing Adobe data and looking at the diffs. This came out with 2 problems:
 
 * QGIS saves GeoJSON to 15 decimal places. As I'm using British National Grid, this ends up being sub-picometer detail. I have absolutely no need for this and it inflates file sizes dramatically.
-* Each feature is saved on a single line. This isn't a problem per se but means that*l *any* changes to a feature mean the whole feature (all properties and all coordinates) is marked as a diff. This makes actually spotting changes difficult.
+* Each feature is saved on a single line. This isn't a problem per se but means that *any* changes to a feature mean the whole feature (all properties and all coordinates) is marked as a diff. This makes actually spotting changes difficult.
 
 ## Parsing the Output
 

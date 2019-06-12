@@ -7,6 +7,7 @@
 @keyword = PostGIS
 @keyword = Visualisation
 @map = j-a002-01
+@finished = True
 
 <img src="/map/j-a002-01.jpg" alt="An overview of several years of GPS logs.">
 
@@ -30,10 +31,12 @@ At first, I stored the data in a simple SpatiaLite database that also joined con
 
 It taken a little while to tune the triggers so that they run in a reasonable time. I tried not to assume that the data was coming in the exact right order of files / rows, so I couldn't just look at the previous point to see if a line needed to be created so I had to pull out all of the point within a particular duration - a functional index turned out to be a good method here. For example:
 
-    CREATE INDEX gps_point_time_plus_20_idx
-        ON gps_data.gps_point USING btree
-        (("time" + '00:00:20'::interval))
-        TABLESPACE pg_default;
+```sql
+CREATE INDEX gps_point_time_plus_20_idx
+    ON gps_data.gps_point USING btree
+    (("time" + '00:00:20'::interval))
+    TABLESPACE pg_default;
+```
 
 This resulted in a pipeline where I could just offload csv files into a folder whenever it was convenient, run the R script and have all my data run through my processing automatically.
 
@@ -69,9 +72,11 @@ The problem in question was joining up consecutive points with linestrings. In S
 
 The tricky part for my novice understanding of PostgreSQL was returning 'points within 20 seconds' from a variable point in time while keeping things quick. Eventually I came up with this index which does the job (but is limited to 20 second intervals):
 
-    CREATE INDEX gps_point_time_plus_20_idx
-        ON gps_data.gps_point USING btree
-        (("time" + '00:00:20'::interval))
-        TABLESPACE pg_default;
+```sql
+CREATE INDEX gps_point_time_plus_20_idx
+    ON gps_data.gps_point USING btree
+    (("time" + '00:00:20'::interval))
+    TABLESPACE pg_default;
+```
 
 Which defines a [functional index](https://www.postgresql.org/docs/9.1/static/indexes-expressional.html) on the result of adding 20 seconds to the point's timestamp. So far this has been scalling reasonably well as a long-term solution one and a half million points in.

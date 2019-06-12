@@ -1,12 +1,13 @@
 # LiDAR Data and Contours in QGIS 2
 @date_created = 2017-08-19  
 @author = Joe McGrath  
-@description = A guide to visualising LiDAR and creating contours in QGIS 2. 
-@keyword = QGIS 
+@description = A guide to visualising LiDAR and creating contours in QGIS 2.
+@keyword = QGIS
 @keyword = QGIS 2  
-@keyword = LiDAR 
-@keyword = Contours 
-@keyword = Guide 
+@keyword = LiDAR
+@keyword = Contours
+@keyword = Guide
+@finished = True
 
 *Note - this was written for QGIS 2 and hasn't been updated for QGIS 3.*
 
@@ -93,7 +94,9 @@ On fine-scale data like most LiDAR, you might find that the contours produced ar
 
 I prefer to use an expression that makes a distinction between lines that form closed contours and ones that don't (meaning that contours at the edge of your data have a bit more leeway to be short):
 
-        (is_closed( $geometry ) AND $length < 350) OR $length < 100
+```qgis
+(is_closed( $geometry ) AND $length < 350) OR $length < 100
+```
 
 All of the variables in QGIS with a dollar sign ($) in front of them are calculated variables that all features with a geometry have. The two used here are *$length* - the length of the line as a number and *$geometry* which gets passed to functions expecting a geometry, in this case is_closed which returns *true* if the line forms a closed loop.
 

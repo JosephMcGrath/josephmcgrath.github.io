@@ -7,6 +7,7 @@
 @keyword = Digitisation
 @map = j-a003-01
 @map = j-a003-02
+@finished = True
 
 <img src="/map/j-a003-01.jpg" alt="A plan of my flat in a faux-blueprint style.">
 
@@ -32,36 +33,38 @@ If end-point snapping is used properly in QGIS, it should be fairly simple to dy
 
 To quickly run through the SQL I used to create / hold the data. First the structure to put the data in:
 
-    CREATE SCHEMA drawing_data;
-    
-    CREATE TABLE drawing_data.label_position (
-        label_position TEXT PRIMARY KEY
-    );
-    
-    INSERT INTO drawing_data.label_position
-        (label_position)
-    VALUES
-        ('above')
-      , ('on')
-      , ('below');
-    
-    CREATE TABLE drawing_data.line_in (
-        oid SERIAL
-            PRIMARY KEY
-      , drawing_name VARCHAR
-            NOT NULL
-      , item_category VARCHAR
-            NOT NULL
-      , item_name VARCHAR
-      , measured_length FLOAT
-      , to_label BOOLEAN
-            DEFAULT FALSE
-      , label_position VARCHAR
-            REFERENCES drawing_data.label_position
-      , label_offset FLOAT
-      , the_geom GEOMETRY(LINESTRING, 27700)
-            NOT NULL
-    );
+```sql
+CREATE SCHEMA drawing_data;
+
+CREATE TABLE drawing_data.label_position (
+    label_position TEXT PRIMARY KEY
+);
+
+INSERT INTO drawing_data.label_position
+    (label_position)
+VALUES
+    ('above')
+  , ('on')
+  , ('below');
+
+CREATE TABLE drawing_data.line_in (
+    oid SERIAL
+        PRIMARY KEY
+  , drawing_name VARCHAR
+        NOT NULL
+  , item_category VARCHAR
+        NOT NULL
+  , item_name VARCHAR
+  , measured_length FLOAT
+  , to_label BOOLEAN
+        DEFAULT FALSE
+  , label_position VARCHAR
+        REFERENCES drawing_data.label_position
+  , label_offset FLOAT
+  , the_geom GEOMETRY(LINESTRING, 27700)
+        NOT NULL
+);
+```
 
 Which gives me all the information I need to be going on with. There might be an argument to streamline the set of fields used, but this'll do for now.
 
@@ -74,58 +77,62 @@ Merging the individual segments into a series of polygons is a fairly straightfo
 
 Both of these steps are handled by this SQL:
 
-    CREATE OR REPLACE VIEW drawing_data.joined_line AS SELECT
-        MIN(line_in.oid) AS oid
-      , line_in.drawing_name
-      , line_in.item_category
-      , line_in.item_name
-      , ST_Dump(
-            ST_LineMerge(
-                 ST_Union(line_in.the_geom)
-            )
-        ) AS the_geom
-    FROM drawing_data.line_in
-    GROUP BY
-      , line_in.drawing_name
-      , line_in.item_category
-      , line_in.item_name;
-    
-    CREATE OR REPLACE VIEW drawing_data.merged_polygon AS SELECT
-        row_number() OVER () AS pid
-      , oid
-      , x.drawing_name
-      , x.item_category
-      , x.item_name
-      , ST_MakePolygon((x.the_geom).geom) AS geom
-    FROM joined_line AS x
-    WHERE
-        ST_IsClosed((x.the_geom).geom)
-    ORDER BY
-        ST_Area(ST_MakePolygon((x.the_geom).geom)) DESC;
+```sql
+CREATE OR REPLACE VIEW drawing_data.joined_line AS SELECT
+    MIN(line_in.oid) AS oid
+  , line_in.drawing_name
+  , line_in.item_category
+  , line_in.item_name
+  , ST_Dump(
+        ST_LineMerge(
+             ST_Union(line_in.the_geom)
+        )
+    ) AS the_geom
+FROM drawing_data.line_in
+GROUP BY
+  , line_in.drawing_name
+  , line_in.item_category
+  , line_in.item_name;
 
-The ````joined_line```` view merges all the lines based on their ````drawing_name````, ````item_category```` and ````item_name````, creates a single line where they join up and then breaks the separate elements of this geometry into separate records (so all of the objects of the same type are briefly a single multiline in here before being split off. After this, the ````merged_polygon```` view makes a polygon out of any closed rings, ordered so that larder polygons are rendered first (and won't cover smaller ones).
+CREATE OR REPLACE VIEW drawing_data.merged_polygon AS SELECT
+    row_number() OVER () AS pid
+  , oid
+  , x.drawing_name
+  , x.item_category
+  , x.item_name
+  , ST_MakePolygon((x.the_geom).geom) AS geom
+FROM joined_line AS x
+WHERE
+    ST_IsClosed((x.the_geom).geom)
+ORDER BY
+    ST_Area(ST_MakePolygon((x.the_geom).geom)) DESC;
+```
+
+The ```joined_line``` view merges all the lines based on their ```drawing_name```, ```item_category``` and ```item_name```, creates a single line where they join up and then breaks the separate elements of this geometry into separate records (so all of the objects of the same type are briefly a single multiline in here before being split off. After this, the ```merged_polygon``` view makes a polygon out of any closed rings, ordered so that larder polygons are rendered first (and won't cover smaller ones).
 
 A simple example of this is shown below - with a series of 4 lines being merged together into a rectangle while ignoring a standalone linestring with the same underlying data because it's not linked.
 
 <img src="img/drawing_polygon_creation.jpg" alt="A series of separate lines merged into a polygon.">
 
-Admittedly a lot of the actual work here is being done by ````ST_LineMerge````, but I'm happy with the added level of versatility over just the raw function.
+Admittedly a lot of the actual work here is being done by ```ST_LineMerge```, but I'm happy with the added level of versatility over just the raw function.
 
 ### Identifying Errors
 
 Working with this setup for a while worked pretty well, but did result in a few frustrating moments when trying to identify the breaks where one part of a long set of lines didn't *quite* connect up. To fix that I can just modify the polygon-generating view slightly:
 
-        CREATE OR REPLACE VIEW drawing_data.broken_line AS  SELECT
-            row_number() OVER () AS pid
-          , x.drawing_name
-          , x.item_category
-          , x.item_name
-          , ST_Boundary((x.the_geom).geom) AS the_geom
-        FROM drawing_data.joined_line AS x
-        WHERE
-            NOT ST_IsClosed((x.the_geom).geom);
+```sql
+CREATE OR REPLACE VIEW drawing_data.broken_line AS  SELECT
+    row_number() OVER () AS pid
+  , x.drawing_name
+  , x.item_category
+  , x.item_name
+  , ST_Boundary((x.the_geom).geom) AS the_geom
+FROM drawing_data.joined_line AS x
+WHERE
+    NOT ST_IsClosed((x.the_geom).geom);
+```
 
-Here, the inner query is the same, but rather than running any rings through ````ST_MakePolygon````, I'm putting the non-ring outputs through ````ST_Boundary````. As the boundary of a line is its end-points this creates a point geometry at the breaks in rings, letting them be easily knitted together.
+Here, the inner query is the same, but rather than running any rings through ```ST_MakePolygon```, I'm putting the non-ring outputs through ```ST_Boundary```. As the boundary of a line is its end-points this creates a point geometry at the breaks in rings, letting them be easily knitted together.
 
 The result of this being something like this (with broken ends being the large black dots):
 
@@ -139,30 +146,32 @@ Earlier, I said that I was recording the actual distances measured in addition t
 
 This view calculates a few relevant statistics about the difference between measured and digitised lengths:
 
-    CREATE OR REPLACE VIEW drawing_data.line_diffs AS SELECT
-        line_in.oid
-      , line_in.drawing_name
-      , line_in.item_category
-      , line_in.measured_length
-      , ROUND(ST_Length(line_in.the_geom)::numeric, 3) AS line_length
-      , ROUND((ST_Length(line_in.the_geom) - line_in.measured_length)::numeric, 3) AS abs_diff
-      , ROUND(((ST_Length(line_in.the_geom) - line_in.measured_length
-                ) / line_in.measured_length * 100::double precision
-                )::numeric,
-              2
-              ) AS perc_diff
-      , line_in.the_geom
-    FROM
-        drawing_data.line_in
-    WHERE
-        line_in.measured_length IS NOT NULL AND
-        ABS((ST_Length(line_in.the_geom) - line_in.measured_length)) >= 0.001::double precision
-    ORDER BY
-        ROUND(((ST_Length(line_in.the_geom) - line_in.measured_length
-                ) / line_in.measured_length * 100::double precision
-                )::numeric,
-              2
-              ) DESC;
+```sql
+CREATE OR REPLACE VIEW drawing_data.line_diffs AS SELECT
+    line_in.oid
+  , line_in.drawing_name
+  , line_in.item_category
+  , line_in.measured_length
+  , ROUND(ST_Length(line_in.the_geom)::numeric, 3) AS line_length
+  , ROUND((ST_Length(line_in.the_geom) - line_in.measured_length)::numeric, 3) AS abs_diff
+  , ROUND(((ST_Length(line_in.the_geom) - line_in.measured_length
+            ) / line_in.measured_length * 100::double precision
+            )::numeric,
+          2
+          ) AS perc_diff
+  , line_in.the_geom
+FROM
+    drawing_data.line_in
+WHERE
+    line_in.measured_length IS NOT NULL AND
+    ABS((ST_Length(line_in.the_geom) - line_in.measured_length)) >= 0.001::double precision
+ORDER BY
+    ROUND(((ST_Length(line_in.the_geom) - line_in.measured_length
+            ) / line_in.measured_length * 100::double precision
+            )::numeric,
+          2
+          ) DESC;
+```
 
 I've opted for a diverging colour scheme here to differentiate lines that are larger or smaller than their measurements. As they also increase in saturation out from 0% difference, that also makes finding absolute accuracy pretty easy too.
 

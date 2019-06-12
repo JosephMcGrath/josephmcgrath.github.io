@@ -6,6 +6,7 @@
 @keyword = British National Grid
 @keyword = Grid Sheet
 @keyword = Coordinate Systems
+@finished = True
 
 ## Overview
 
