@@ -14,15 +14,15 @@ The current British National Grid (EPSG code 27700) covers the whole of the UK a
 
 The squares are based on a 5 by 5 grid with a letter of the alphabet for each square, excluding 'I' (presumably due to its similarity to '1', 'L' and 'J'). These start with 'A' in the top left and work left-to-right then top-to-bottom.
 
-![The 5x5 grid that are the basis of the prefix.](img/os_grid_basic.jpg)
+![The 5x5 grid that are the basis of the prefix.](/img/os_grid_basic.jpg)
 
 There's two levels to this grid in it's normal use, one inside the other. The first level goes to 500000 kilometres, then the second to the 100000 within that. This has the net effect of replacing the first digit of both the X and Y coordinate with a letter.
 
-![The relevant portion of the 2-letter grid covering Great Britain.](img/os_grid_detail.jpg)
+![The relevant portion of the 2-letter grid covering Great Britain.](/img/os_grid_detail.jpg)
 
 Due to the size of the grid it *does* technically extetend beyond the useful bounds of the UK. One neat feature of this grid is that the majority of the north of the UK starts with an 'N' grid sheet, while the south starts with an 'S' - I suspect someone had fun coming up with that, but it is easy to remember.
 
-![Full extend of the grid naming system.](img/os_grid_full.jpg)
+![Full extend of the grid naming system.](/img/os_grid_full.jpg)
 
 Though I'd question *why* you'd want to use a system based on British National Grid that far out.
 

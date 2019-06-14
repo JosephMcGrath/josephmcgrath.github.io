@@ -109,7 +109,7 @@ I did a thematic map with the percentage lead in the polls. Picking colours wasn
 
 The fairly obvious choice was to have 0 be the central point of the histogram bins. Each side of that I chose three bins for each group and a central '± 1%' group for no clear leaning. Despite the fact the two groups didn't have the same distribution of values, I used the same set of bins as it would otherwise be practically impossible to compare the two. The bins I ended up choosing are included below:
 
-![The histogram bins for vote lead.](img/uk-ref-vote_lead_hist.jpg)
+![The histogram bins for vote lead.](/img/uk-ref-vote_lead_hist.jpg)
 
 I feel these give a decent ballance between the two. To plot these on a map I split off the Scottish Northern Isles into their own inset map to get a better scale. As the plain polygons on a white background felt a little flat I added an outer glow in black - this does give some weird results for smaller islands but overall pulls a lot more focus to the map.
 
@@ -178,11 +178,11 @@ An aspect I'd like to explore is if there's any inherant bias in assessing perce
 
 To check this, I've plotted out the histogram of total votes:
 
-![The histogram bins for net total votes.](img/uk-ref-vote_count_hist.jpg)
+![The histogram bins for net total votes.](/img/uk-ref-vote_count_hist.jpg)
 
 It does seem that despite the fairly even bins for percentage votes, there are regions with much higher total vote counts for remain. I'll explore the result of plotting vote count rather than percentages. As plotting absolute counts on a choropleth with different-sized regions is bad practise I'm going with votes per unit area (in this case hectares). I suspect this pushes the bias in the other direction. The histogram of votes per area does seem to be significantly less ballanced:
 
-![The histogram bins for votes per hectare](img/uk-ref-vote_density_hist.jpg)
+![The histogram bins for votes per hectare](/img/uk-ref-vote_density_hist.jpg)
 
 Coming up with a scale that works for both is a little fiddly. The bins I settled on had their finer scale based on the leave votes and their upper end based on the remain votes.
 

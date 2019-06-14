@@ -31,7 +31,7 @@
 <div class = "main">
 <h1>LiDAR Data and Contours in QGIS 2</h1>
 <p><em>Note - this was written for QGIS 2 and hasn't been updated for QGIS 3.</em></p>
-<p><img alt="An example output of LiDAR data." src="img/qgis-2-lidar-example.jpg" /></p>
+<p><img alt="An example output of LiDAR data." src="/img/qgis-2-lidar-example.jpg" /></p>
 <h2>Getting LiDAR into QGIS</h2>
 <p>Most sources of LiDAR data I've seen (and raster data in general) comes split into tiles for a number of reasons. This does causes us a few problems when using the data:</p>
 <ul>
@@ -57,7 +57,7 @@
 </ul>
 </li>
 </ol>
-<p><img alt="The Build Virtual Raster menu in QGIS." src="img/qgis-2-build-virtual-raster.jpg" /></p>
+<p><img alt="The Build Virtual Raster menu in QGIS." src="/img/qgis-2-build-virtual-raster.jpg" /></p>
 <p>From this image, you can see an example. The big box full of file paths is a bit of a giveaway to what's <em>actually</em> happening here. One of the major open-source components of QGIS is <em>GDAL</em>, which handles the bult of raster processing. In this example, QGIS is acting as an intermediary between the user and gdalbuildvrt which actually builds the virtual raster.</p>
 <h2>Displaying the LiDAR</h2>
 <p>As an example I'll assume the desired output is a hillshade (aka shaded relief) with height themed by colour and contours over the top.</p>
@@ -106,7 +106,7 @@
 </ol>
 <h3>Cleaning up the Contours</h3>
 <p>On fine-scale data like most LiDAR, you might find that the contours produced are a little on the noisey side. The most effective way to clean this up is to delete all of the short contours. To do this, use the 'Select by Expression' tool:</p>
-<p><img alt="The location of the 'Select by Expression' dialog menu in QGIS." src="img/qgis-2-select-by-expression.jpg" /></p>
+<p><img alt="The location of the 'Select by Expression' dialog menu in QGIS." src="/img/qgis-2-select-by-expression.jpg" /></p>
 <p>I prefer to use an expression that makes a distinction between lines that form closed contours and ones that don't (meaning that contours at the edge of your data have a bit more leeway to be short):</p>
 <pre><code class="qgis">(is_closed( $geometry ) AND $length &lt; 350) OR $length &lt; 100
 </code></pre>
@@ -119,15 +119,15 @@
 <p>The distinction between DSM (Digital Surface Model) and DTM (Digital Terrain Model) is pretty important for this type of work. A surface model will include buildings and trees and make a very messy set of countours - so I'd advise a terrain model which has those features processed out. My personal preference is to use a surface model for the hillshade, but a terrain model for both the pseudocolour layer and contours. That avoids both the messy contours of a DSM and the unnatural flat areas where buildings were removed from the DTM.</p>
 <h3>Blend Modes</h3>
 <p>Rather than using blend modes, an alternative to show both the elevation and hillshade would be to use transparency with a  'normal' blend mode. This gives a desaturated look that I've always thought of as a bit 'plastic'. This has the advantage of showing up contour lines a bit better no-matter what your colour ramp is. There's a comparison of the two below:</p>
-<p><img alt="A comparison of different methods of stacking hillshades with pseudocolour imagery." src="img/qgis-2-lidar-blend-comparison.jpg" /></p>
+<p><img alt="A comparison of different methods of stacking hillshades with pseudocolour imagery." src="/img/qgis-2-lidar-blend-comparison.jpg" /></p>
 <h3>Further Contour Processing</h3>
 <p>When you zoom further in to the contours they might start to look a bit blocky (which makes sense - they came from blocks in the first place). The easiest way to get rid of this is with the smoothing tool, for which you'll need to be using QGIS with GRASS (GRASS is another open-source program that QGIS uses for additional functionality). In the processing toolbox (processing -&gt; toolbox) and search for v.generalise.smooth. There is a smoothing function built into QGIS - but it doesn't seem to give as good results for this task.</p>
 <p>I've put together a comparison of the algorithms on a set of contours (not including the 'snakes' algorithm which caused QGIS to crash whenever I tried it):</p>
-<p><img alt="An example of the boyle smoothing algorithm available through GRASS." src="img/qgis-2-lidar-smoothing-comparison-boyle.jpg" /><br />
-<img alt="An example of the sliding average smoothing algorithm available through GRASS." src="img/qgis-2-lidar-smoothing-comparison-sliding-average.jpg" /><br />
-<img alt="An example of the distance weighting smoothing algorithm available through GRASS." src="img/qgis-2-lidar-smoothing-comparison-distance-weighting.jpg" /><br />
-<img alt="An example of the chaiken smoothing algorithm available through GRASS." src="img/qgis-2-lidar-smoothing-comparison-chaiken.jpg" /><br />
-<img alt="An example of the hermite smoothing algorithm available through GRASS." src="img/qgis-2-lidar-smoothing-comparison-hermite.jpg" />  </p>
+<p><img alt="An example of the boyle smoothing algorithm available through GRASS." src="/img/qgis-2-lidar-smoothing-comparison-boyle.jpg" /><br />
+<img alt="An example of the sliding average smoothing algorithm available through GRASS." src="/img/qgis-2-lidar-smoothing-comparison-sliding-average.jpg" /><br />
+<img alt="An example of the distance weighting smoothing algorithm available through GRASS." src="/img/qgis-2-lidar-smoothing-comparison-distance-weighting.jpg" /><br />
+<img alt="An example of the chaiken smoothing algorithm available through GRASS." src="/img/qgis-2-lidar-smoothing-comparison-chaiken.jpg" /><br />
+<img alt="An example of the hermite smoothing algorithm available through GRASS." src="/img/qgis-2-lidar-smoothing-comparison-hermite.jpg" />  </p>
 <p>From these, I'd personally choose the 'distance weighting' algorithm as it seems to produce the smoothest results (assuming aesthetics are the only aim here) with 'chaiken' being a good candidate for maintaining shape. Though it's worth pointing out that these algorithms are topologically 'dumb' and don't care if the smoothing causes contour lines to cross themselves or other lines.</p>
 </div>
 </body>

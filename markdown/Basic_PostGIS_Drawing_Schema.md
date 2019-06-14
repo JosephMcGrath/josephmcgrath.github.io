@@ -112,7 +112,7 @@ The ```joined_line``` view merges all the lines based on their ```drawing_name``
 
 A simple example of this is shown below - with a series of 4 lines being merged together into a rectangle while ignoring a standalone linestring with the same underlying data because it's not linked.
 
-![A series of separate lines merged into a polygon.](img/drawing_polygon_creation.jpg)
+![A series of separate lines merged into a polygon.](/img/drawing_polygon_creation.jpg)
 
 Admittedly a lot of the actual work here is being done by ```ST_LineMerge```, but I'm happy with the added level of versatility over just the raw function.
 
@@ -136,7 +136,7 @@ Here, the inner query is the same, but rather than running any rings through ```
 
 The result of this being something like this (with broken ends being the large black dots):
 
-![Points identifying the breaks in linework at either end of a single line.](img/drawing_polygon_breaks.jpg)
+![Points identifying the breaks in linework at either end of a single line.](/img/drawing_polygon_breaks.jpg)
 
 With points correctly identifying that a two-point line isn't a closed loop - marvellous.
 

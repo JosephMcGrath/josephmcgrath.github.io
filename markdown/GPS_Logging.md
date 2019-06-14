@@ -56,7 +56,7 @@ So my end result was to have faint lines in the background, overlaid by variable
 
 Below I've got a quick example of the difference that even very faint lines make:
 
-![An example of an area made clearer by the addition of lines.](img/gps-traces-with-lines.jpg)
+![An example of an area made clearer by the addition of lines.](/img/gps-traces-with-lines.jpg)
 
 This does end up making the output look quite a bit more busy, particularly in areas I've been through multiple times (as it adds up to a lighter background). Personally I prefer having the lines in for less-travelled areas.
 

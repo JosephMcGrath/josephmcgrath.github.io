@@ -110,7 +110,7 @@ COMMIT;
 <h3>Making the Map</h3>
 <p>I did a thematic map with the percentage lead in the polls. Picking colours wasn't too difficult - the main Remain campaign had a red-white-blue theme, focussing on blue and the main Leave campaign had red-white focussing on red. I ended up sampling the ends of the colour ramp directly from posters for the different campaigns and adding in a light grey at the middle.</p>
 <p>The fairly obvious choice was to have 0 be the central point of the histogram bins. Each side of that I chose three bins for each group and a central '± 1%' group for no clear leaning. Despite the fact the two groups didn't have the same distribution of values, I used the same set of bins as it would otherwise be practically impossible to compare the two. The bins I ended up choosing are included below:</p>
-<p><img alt="The histogram bins for vote lead." src="img/uk-ref-vote_lead_hist.jpg" /></p>
+<p><img alt="The histogram bins for vote lead." src="/img/uk-ref-vote_lead_hist.jpg" /></p>
 <p>I feel these give a decent ballance between the two. To plot these on a map I split off the Scottish Northern Isles into their own inset map to get a better scale. As the plain polygons on a white background felt a little flat I added an outer glow in black - this does give some weird results for smaller islands but overall pulls a lot more focus to the map.</p>
 <p>This worked pretty well, after a few tests I came out with this map:</p>
 <p><img alt="Map of the lead for Leave &amp; Remain in each region." src="/map/j-a004-01.jpg" /></p>
@@ -160,9 +160,9 @@ COMMIT;
 <h2>A Different Angle</h2>
 <p>An aspect I'd like to explore is if there's any inherant bias in assessing percentage rather than actual vote counts. Just looking at the percentages makes it look like much more of a landslide than the actual 52% / 48% split. I don't know the criteria for defining the district borough unitary regions is - but I wouldn't be surprised if there was a trend for more densely populated urban regions to have higher total populations than rural ones.</p>
 <p>To check this, I've plotted out the histogram of total votes:</p>
-<p><img alt="The histogram bins for net total votes." src="img/uk-ref-vote_count_hist.jpg" /></p>
+<p><img alt="The histogram bins for net total votes." src="/img/uk-ref-vote_count_hist.jpg" /></p>
 <p>It does seem that despite the fairly even bins for percentage votes, there are regions with much higher total vote counts for remain. I'll explore the result of plotting vote count rather than percentages. As plotting absolute counts on a choropleth with different-sized regions is bad practise I'm going with votes per unit area (in this case hectares). I suspect this pushes the bias in the other direction. The histogram of votes per area does seem to be significantly less ballanced:</p>
-<p><img alt="The histogram bins for votes per hectare" src="img/uk-ref-vote_density_hist.jpg" /></p>
+<p><img alt="The histogram bins for votes per hectare" src="/img/uk-ref-vote_density_hist.jpg" /></p>
 <p>Coming up with a scale that works for both is a little fiddly. The bins I settled on had their finer scale based on the leave votes and their upper end based on the remain votes.</p>
 <p><img alt="Map of net votes for remain and leave per hectare." src="/map/j-a004-03.jpg" /></p>
 <p>This shows a bit of a different pattern to the percentage of voters - visually compensating better for large, less-densely populated regions. There's a natural bias in this to show cities due to their higher raw population.</p>
