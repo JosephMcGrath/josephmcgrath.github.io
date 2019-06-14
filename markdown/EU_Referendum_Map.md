@@ -109,13 +109,13 @@ I did a thematic map with the percentage lead in the polls. Picking colours wasn
 
 The fairly obvious choice was to have 0 be the central point of the histogram bins. Each side of that I chose three bins for each group and a central '± 1%' group for no clear leaning. Despite the fact the two groups didn't have the same distribution of values, I used the same set of bins as it would otherwise be practically impossible to compare the two. The bins I ended up choosing are included below:
 
-<img src="img/uk-ref-vote_lead_hist.jpg" alt="The histogram bins for vote lead.">
+![The histogram bins for vote lead.](img/uk-ref-vote_lead_hist.jpg)
 
 I feel these give a decent ballance between the two. To plot these on a map I split off the Scottish Northern Isles into their own inset map to get a better scale. As the plain polygons on a white background felt a little flat I added an outer glow in black - this does give some weird results for smaller islands but overall pulls a lot more focus to the map.
 
 This worked pretty well, after a few tests I came out with this map:
 
-<img src="/map/j-a004-01.jpg" alt="Map of the lead for Leave & Remain in each region.">
+![Map of the lead for Leave & Remain in each region.](/map/j-a004-01.jpg)
 
 The result of which looks reassuringly similar to every other map of the results I've seen.
 
@@ -168,7 +168,7 @@ The full rendering options in QGIS are quite nice to have access to, but are cle
 
 One other useful feature was to define the size of the points in 'metres at scale' - so that the size of the points didn't change with the size of the output. The output turned out pretty nice - but I would probably jsut take the time to use a tool designed for the job in the future.
 
-<img src="/map/j-a004-02.jpg" alt="Referendum lead map with turnout percentage graph.">
+![Referendum lead map with turnout percentage graph.](/map/j-a004-02.jpg)
 
 The results of percentage turnout of electorate against vote ballance is quite interesting. The overall pattern seems to be that districts that voted to leave generally had a higher proportion of the electorate turn out.
 
@@ -178,15 +178,15 @@ An aspect I'd like to explore is if there's any inherant bias in assessing perce
 
 To check this, I've plotted out the histogram of total votes:
 
-<img src="img/uk-ref-vote_count_hist.jpg" alt="The histogram bins for net total votes.">
+![The histogram bins for net total votes.](img/uk-ref-vote_count_hist.jpg)
 
 It does seem that despite the fairly even bins for percentage votes, there are regions with much higher total vote counts for remain. I'll explore the result of plotting vote count rather than percentages. As plotting absolute counts on a choropleth with different-sized regions is bad practise I'm going with votes per unit area (in this case hectares). I suspect this pushes the bias in the other direction. The histogram of votes per area does seem to be significantly less ballanced:
 
-<img src="img/uk-ref-vote_density_hist.jpg" alt="The histogram bins for votes per hectare.">
+![The histogram bins for votes per hectare](img/uk-ref-vote_density_hist.jpg)
 
 Coming up with a scale that works for both is a little fiddly. The bins I settled on had their finer scale based on the leave votes and their upper end based on the remain votes.
 
-<img src="/map/j-a004-03.jpg" alt="Map of net votes for remain and leave per hectare.">
+![Map of net votes for remain and leave per hectare.](/map/j-a004-03.jpg)
 
 This shows a bit of a different pattern to the percentage of voters - visually compensating better for large, less-densely populated regions. There's a natural bias in this to show cities due to their higher raw population.
 

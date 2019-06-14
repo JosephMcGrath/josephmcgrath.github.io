@@ -33,11 +33,11 @@
 <h2>Overview</h2>
 <p>The current British National Grid (EPSG code 27700) covers the whole of the UK and Ireland. The grid works fine as a purely numerical system - but quite often you'll see coordinates listed with a 2-letter prefix. These represent the first 100 kilometres of the coordinate. The wikipedia page has quite a <a href="https://en.wikipedia.org/wiki/Ordnance_Survey_National_Grid#Grid_letters">good section</a> but I thought I'd do a quick run through the workings of the grid letters from my own angle.</p>
 <p>The squares are based on a 5 by 5 grid with a letter of the alphabet for each square, excluding 'I' (presumably due to its similarity to '1', 'L' and 'J'). These start with 'A' in the top left and work left-to-right then top-to-bottom.</p>
-<p><img src="img/os_grid_basic.jpg" alt="The 5x5 grid that are the basis of the prefix."></p>
+<p><img alt="The 5x5 grid that are the basis of the prefix." src="img/os_grid_basic.jpg" /></p>
 <p>There's two levels to this grid in it's normal use, one inside the other. The first level goes to 500000 kilometres, then the second to the 100000 within that. This has the net effect of replacing the first digit of both the X and Y coordinate with a letter.</p>
-<p><img src="img/os_grid_detail.jpg" alt="The relevant portion of the 2-letter grid covering Great Britain."></p>
+<p><img alt="The relevant portion of the 2-letter grid covering Great Britain." src="img/os_grid_detail.jpg" /></p>
 <p>Due to the size of the grid it <em>does</em> technically extetend beyond the useful bounds of the UK. One neat feature of this grid is that the majority of the north of the UK starts with an 'N' grid sheet, while the south starts with an 'S' - I suspect someone had fun coming up with that, but it is easy to remember.</p>
-<p><img src="img/os_grid_full.jpg" alt="Full extend of the grid naming system."></p>
+<p><img alt="Full extend of the grid naming system." src="img/os_grid_full.jpg" /></p>
 <p>Though I'd question <em>why</em> you'd want to use a system based on British National Grid that far out.</p>
 <h2>Bringing sheets into GIS</h2>
 <p>This style of reference are a little less convenient in a modern GIS. Every GIS I've seen is entirely country-agnostic and hasn't got direct support for systems that aren't purely numerical out of the box. It's not too difficult to pre-generate the sheets - I've got my own implimentation <a href="https://github.com/JosephMcGrath/Misc-scripts/blob/master/SQLite/OS_Grid_Squares.sql">in SpatiaLite here</a>. It would probably be quite easy to use these to convert coordinates to grid references with a trigger / function at the database layer.</p>

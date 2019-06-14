@@ -9,7 +9,7 @@
 @map = j-a003-02
 @finished = True
 
-<img src="/map/j-a003-01.jpg" alt="A plan of my flat in a faux-blueprint style.">
+![A plan of my flat in a faux-blueprint style.](/map/j-a003-01.jpg)
 
 ## Background
 
@@ -112,7 +112,7 @@ The ```joined_line``` view merges all the lines based on their ```drawing_name``
 
 A simple example of this is shown below - with a series of 4 lines being merged together into a rectangle while ignoring a standalone linestring with the same underlying data because it's not linked.
 
-<img src="img/drawing_polygon_creation.jpg" alt="A series of separate lines merged into a polygon.">
+![A series of separate lines merged into a polygon.](img/drawing_polygon_creation.jpg)
 
 Admittedly a lot of the actual work here is being done by ```ST_LineMerge```, but I'm happy with the added level of versatility over just the raw function.
 
@@ -136,7 +136,7 @@ Here, the inner query is the same, but rather than running any rings through ```
 
 The result of this being something like this (with broken ends being the large black dots):
 
-<img src="img/drawing_polygon_breaks.jpg" alt="Points identifying the breaks in linework at either end of a single line.">
+![Points identifying the breaks in linework at either end of a single line.](img/drawing_polygon_breaks.jpg)
 
 With points correctly identifying that a two-point line isn't a closed loop - marvellous.
 
@@ -175,7 +175,7 @@ ORDER BY
 
 I've opted for a diverging colour scheme here to differentiate lines that are larger or smaller than their measurements. As they also increase in saturation out from 0% difference, that also makes finding absolute accuracy pretty easy too.
 
-<img src="/map/j-a003-02.jpg" alt="The same plan of my flat as above, but with line accuracy overlaid.">
+![The same plan of my flat as above, but with line accuracy overlaid.](/map/j-a003-02.jpg)
 
 And from this it's pretty obvious that the worst inaccuracies are for multi-part measurements (e.g. from my front door to the bathroom doorframe). That makes a lot of sense as the handover spot isn't fixed. Most of the longest measurements are pretty good with the top half of the flat being a little over and the lower half being under.
 

@@ -31,7 +31,7 @@
 </nav>
 <div class = "main">
 <h1>Visualising GPS Logs</h1>
-<p><img src="/map/j-a002-01.jpg" alt="An overview of several years of GPS logs."></p>
+<p><img alt="An overview of several years of GPS logs." src="/map/j-a002-01.jpg" /></p>
 <h2>Introduction</h2>
 <p>I've been collecting GPS data using my phone for about a year and a half now (partially out of curiosity and partially so I could have a data-set of my own to play around with). Currently my processing is pretty simple and just pointed at creating a few pretty <a href="https://adventuresinmapping.com/2016/10/17/firefly-cartography">firefly-style maps</a>. I've had to sit on this project for a little while because the most interesting outputs all plainly identify my house or a friend's house, but having moved house recently has freed that up significantly.</p>
 <h2>Collecting Data</h2>
@@ -68,7 +68,7 @@
 </ul>
 <p>So my end result was to have faint lines in the background, overlaid by variable-transparency points. I feel like there's a bit more work to do here, but this is a decent enough point to park things.</p>
 <p>Below I've got a quick example of the difference that even very faint lines make:</p>
-<p><img src="img/gps-traces-with-lines.jpg" alt="An example of an area made clearer by the addition of lines."></p>
+<p><img alt="An example of an area made clearer by the addition of lines." src="img/gps-traces-with-lines.jpg" /></p>
 <p>This does end up making the output look quite a bit more busy, particularly in areas I've been through multiple times (as it adds up to a lighter background). Personally I prefer having the lines in for less-travelled areas.</p>
 <h2>More Detail on the Database</h2>
 <p>As I've already mentioned, I'd put together a small SpatiaLite database to store my first results - but as the data set passed several months SQLite started to act as a bottleneck on a few operations (or at least my understanding of how indexes in SQLite work). I ended up switching to PostGIS, which also seems to have improved performance (with the full code being <a href="https://github.com/JosephMcGrath/Misc-scripts/tree/master/PostGreSQL/Schema_GPS_Data">here</a>).</p>

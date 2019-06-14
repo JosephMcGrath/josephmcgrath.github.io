@@ -12,7 +12,7 @@
 @keyword = Guide
 @finished = True
 
-<img src="img/voronoi_example.jpg" alt="An example set of voronoi polygons created using the mechanism outlined below.">
+![An example set of voronoi polygons created using the mechanism outlined below.](img/voronoi_example.jpg)
 
 ## SpatiaLite
 
@@ -230,4 +230,4 @@ VALUES
 
 Which makes it available for viewing in QGIS.
 
-<img src="img/voronoi_load.jpg" alt="The QGIS 3 menu for loading the voronoi polygons.">
+![The QGIS 3 menu for loading the voronoi polygons.](img/voronoi_load.jpg)

@@ -31,7 +31,7 @@
 </nav>
 <div class = "main">
 <h1>Basic PostGIS Drawing Schema</h1>
-<p><img src="/map/j-a003-01.jpg" alt="A plan of my flat in a faux-blueprint style."></p>
+<p><img alt="A plan of my flat in a faux-blueprint style." src="/map/j-a003-01.jpg" /></p>
 <h2>Background</h2>
 <p>This is a project from a year or two ago when I wanted to make a floor-plan of the flat I was living in at the time. As this was just a personal project I wanted a free/open solution, my first port of call was a open-source CAD programs. After some investigation I didn't find anything that really fitted what I wanted satisfactorily.</p>
 <p>Every option either didn't have the sophistication of digitisation tools that I was after or had some weird compromise in it's file format. From my point of view - the prime advantage of a CAD program is a suite of tools to get designs accurately and efficiently into the digital space and display them in a useful way so I wasn't that keen to learn a program that didn't satisfy those criteria.</p>
@@ -115,7 +115,7 @@ ORDER BY
 
 <p>The <code>joined_line</code> view merges all the lines based on their <code>drawing_name</code>, <code>item_category</code> and <code>item_name</code>, creates a single line where they join up and then breaks the separate elements of this geometry into separate records (so all of the objects of the same type are briefly a single multiline in here before being split off. After this, the <code>merged_polygon</code> view makes a polygon out of any closed rings, ordered so that larder polygons are rendered first (and won't cover smaller ones).</p>
 <p>A simple example of this is shown below - with a series of 4 lines being merged together into a rectangle while ignoring a standalone linestring with the same underlying data because it's not linked.</p>
-<p><img src="img/drawing_polygon_creation.jpg" alt="A series of separate lines merged into a polygon."></p>
+<p><img alt="A series of separate lines merged into a polygon." src="img/drawing_polygon_creation.jpg" /></p>
 <p>Admittedly a lot of the actual work here is being done by <code>ST_LineMerge</code>, but I'm happy with the added level of versatility over just the raw function.</p>
 <h3>Identifying Errors</h3>
 <p>Working with this setup for a while worked pretty well, but did result in a few frustrating moments when trying to identify the breaks where one part of a long set of lines didn't <em>quite</em> connect up. To fix that I can just modify the polygon-generating view slightly:</p>
@@ -132,7 +132,7 @@ WHERE
 
 <p>Here, the inner query is the same, but rather than running any rings through <code>ST_MakePolygon</code>, I'm putting the non-ring outputs through <code>ST_Boundary</code>. As the boundary of a line is its end-points this creates a point geometry at the breaks in rings, letting them be easily knitted together.</p>
 <p>The result of this being something like this (with broken ends being the large black dots):</p>
-<p><img src="img/drawing_polygon_breaks.jpg" alt="Points identifying the breaks in linework at either end of a single line."></p>
+<p><img alt="Points identifying the breaks in linework at either end of a single line." src="img/drawing_polygon_breaks.jpg" /></p>
 <p>With points correctly identifying that a two-point line isn't a closed loop - marvellous.</p>
 <h3>Getting an Idea of Accuracy</h3>
 <p>Earlier, I said that I was recording the actual distances measured in addition to the line drawn. This was partially a concession to my budget tools and lack of experience with this kind of work but also I believe it's important to know <em>where</em> errors exist if it's practical to do so. Ideally all the lines would be the exact size measured, but I need to have all my lines joining perfectly to generate polygons and a few cursory measurements show that my walls aren't exactly perpendicular to each other.</p>
@@ -164,7 +164,7 @@ ORDER BY
 </code></pre>
 
 <p>I've opted for a diverging colour scheme here to differentiate lines that are larger or smaller than their measurements. As they also increase in saturation out from 0% difference, that also makes finding absolute accuracy pretty easy too.</p>
-<p><img src="/map/j-a003-02.jpg" alt="The same plan of my flat as above, but with line accuracy overlaid."></p>
+<p><img alt="The same plan of my flat as above, but with line accuracy overlaid." src="/map/j-a003-02.jpg" /></p>
 <p>And from this it's pretty obvious that the worst inaccuracies are for multi-part measurements (e.g. from my front door to the bathroom doorframe). That makes a lot of sense as the handover spot isn't fixed. Most of the longest measurements are pretty good with the top half of the flat being a little over and the lower half being under.</p>
 <h2>Future Improvements</h2>
 <p>As always there's still a lot of room for improvements. The most obvious being that I am kinda implementing a <em>very</em> basic version of <a href="https://postgis.net/docs/Topology.html">topology extension for PostGIS</a>. It would probably be worth seeing if its possible to get any mileage out of that before going much further.</p>

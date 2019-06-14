@@ -11,7 +11,7 @@
 
 *Note - this was written for QGIS 2 and hasn't been updated for QGIS 3.*
 
-<img src="img/qgis-2-lidar-example.jpg" alt="An example output of LiDAR data.">
+![An example output of LiDAR data.](img/qgis-2-lidar-example.jpg)
 
 ## Getting LiDAR into QGIS
 
@@ -36,7 +36,7 @@ The processing steps to create a virtual raster are:
     * More programs have support for single-raster files then virtual ones.
     * In my experience, features like pyramids work a bit more consistently on single files.
 
-<img src="img/qgis-2-build-virtual-raster.jpg" alt="The Build Virtual Raster menu in QGIS.">
+![The Build Virtual Raster menu in QGIS.](img/qgis-2-build-virtual-raster.jpg)
 
 From this image, you can see an example. The big box full of file paths is a bit of a giveaway to what's *actually* happening here. One of the major open-source components of QGIS is *GDAL*, which handles the bult of raster processing. In this example, QGIS is acting as an intermediary between the user and gdalbuildvrt which actually builds the virtual raster.
 
@@ -90,7 +90,7 @@ Contours are fairly simple to create in QGIS, but need a little editing if you w
 
 On fine-scale data like most LiDAR, you might find that the contours produced are a little on the noisey side. The most effective way to clean this up is to delete all of the short contours. To do this, use the 'Select by Expression' tool:
 
-<img src="img/qgis-2-select-by-expression.jpg" alt="The location of the 'Select by Expression' dialog menu in QGIS.">
+![The location of the 'Select by Expression' dialog menu in QGIS.](img/qgis-2-select-by-expression.jpg)
 
 I prefer to use an expression that makes a distinction between lines that form closed contours and ones that don't (meaning that contours at the edge of your data have a bit more leeway to be short):
 
@@ -114,7 +114,7 @@ The distinction between DSM (Digital Surface Model) and DTM (Digital Terrain Mod
 
 Rather than using blend modes, an alternative to show both the elevation and hillshade would be to use transparency with a  'normal' blend mode. This gives a desaturated look that I've always thought of as a bit 'plastic'. This has the advantage of showing up contour lines a bit better no-matter what your colour ramp is. There's a comparison of the two below:
 
-<img src="img/qgis-2-lidar-blend-comparison.jpg" alt="A comparison of different methods of stacking hillshades with pseudocolour imagery.">
+![A comparison of different methods of stacking hillshades with pseudocolour imagery.](img/qgis-2-lidar-blend-comparison.jpg)
 
 ### Further Contour Processing
 
@@ -122,10 +122,10 @@ When you zoom further in to the contours they might start to look a bit blocky (
 
 I've put together a comparison of the algorithms on a set of contours (not including the 'snakes' algorithm which caused QGIS to crash whenever I tried it):
 
-<img src="img/qgis-2-lidar-smoothing-comparison-boyle.jpg" alt="An example of the boyle smoothing algorithm available through GRASS.">
-<img src="img/qgis-2-lidar-smoothing-comparison-sliding-average.jpg" alt="An example of the sliding average smoothing algorithm available through GRASS.">
-<img src="img/qgis-2-lidar-smoothing-comparison-distance-weighting.jpg" alt="An example of the distance weighting smoothing algorithm available through GRASS.">
-<img src="img/qgis-2-lidar-smoothing-comparison-chaiken.jpg" alt="An example of the chaiken smoothing algorithm available through GRASS.">
-<img src="img/qgis-2-lidar-smoothing-comparison-hermite.jpg" alt="An example of the hermite smoothing algorithm available through GRASS.">
+![An example of the boyle smoothing algorithm available through GRASS.](img/qgis-2-lidar-smoothing-comparison-boyle.jpg)  
+![An example of the sliding average smoothing algorithm available through GRASS.](img/qgis-2-lidar-smoothing-comparison-sliding-average.jpg)  
+![An example of the distance weighting smoothing algorithm available through GRASS.](img/qgis-2-lidar-smoothing-comparison-distance-weighting.jpg)  
+![An example of the chaiken smoothing algorithm available through GRASS.](img/qgis-2-lidar-smoothing-comparison-chaiken.jpg)  
+![An example of the hermite smoothing algorithm available through GRASS.](img/qgis-2-lidar-smoothing-comparison-hermite.jpg)  
 
 From these, I'd personally choose the 'distance weighting' algorithm as it seems to produce the smoothest results (assuming aesthetics are the only aim here) with 'chaiken' being a good candidate for maintaining shape. Though it's worth pointing out that these algorithms are topologically 'dumb' and don't care if the smoothing causes contour lines to cross themselves or other lines.

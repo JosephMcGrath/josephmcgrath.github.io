@@ -9,7 +9,7 @@
 @map = j-a002-01
 @finished = True
 
-<img src="/map/j-a002-01.jpg" alt="An overview of several years of GPS logs.">
+![An overview of several years of GPS logs.](/map/j-a002-01.jpg)
 
 ## Introduction
 
@@ -56,7 +56,7 @@ So my end result was to have faint lines in the background, overlaid by variable
 
 Below I've got a quick example of the difference that even very faint lines make:
 
-<img src="img/gps-traces-with-lines.jpg" alt="An example of an area made clearer by the addition of lines.">
+![An example of an area made clearer by the addition of lines.](img/gps-traces-with-lines.jpg)
 
 This does end up making the output look quite a bit more busy, particularly in areas I've been through multiple times (as it adds up to a lighter background). Personally I prefer having the lines in for less-travelled areas.
 
