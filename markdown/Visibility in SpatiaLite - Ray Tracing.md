@@ -1,8 +1,8 @@
-# Abusing SpatiaLite - Ray Tracing
+# Visibility in SpatiaLite - Ray Tracing
 
 @author = Joe McGrath
 @date_created = 2019-06-14
-@description = implementing a basic ray tracing algorithm in SpatiaLite.
+@description = Implementing a basic ray tracing algorithm in SpatiaLite.
 @keyword = SpatiaLite
 @keyword = QGIS
 @keyword = Line of sight
