@@ -10,7 +10,7 @@
 @keyword = Ray tracing
 @finished = True
 
-As a matter of curiosity I wanted to see if I could implement a simple ray-tracing algorithm in GIS. It's not something that I can see much practical application, just a bit of fun (though could be interesting for mapping visibility using a layer of buildings / fences).
+As a matter of curiosity I wanted to see if I could implement a simple ray-tracing algorithm in GIS. It's not something that I can see much practical application for day to day, just a bit of fun (though could be interesting for mapping visibility using a layer of buildings / fences).
 
 There's enough functionality in SpatiaLite to do this fairly simply - but it's a bit awkward working with multi-part geometries. As normal this would be easier in PostGIS but I like the portability of SpatiaLite.
 
