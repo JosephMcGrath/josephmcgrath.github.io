@@ -20,20 +20,15 @@ class simple_markdown:
         self.file_path = file_path
         self.markdown = "".join([x for x in lines_in if not re.match(r"^\@", x)])
         self.html = markdown_parser.convert(self.markdown)
-        self.title = [x for x in lines_in if re.match(r"^\# ", x)][0][1:].strip()
         self.meta = self.consolidate_meta(markdown_parser.Meta)
+        self.title = self.meta.get("title")
 
     def consolidate_meta(self, meta_seq):
         output = {
-            #self.strip_whitespace(key): ",".join(self.strip_whitespace(meta_seq[key]))
             key: ",".join(meta_seq[key])
             for key in meta_seq
         }
-
-        if "finished" in output:
-            self.finished = output["finished"] == "True"
-        else:
-            self.finished = False
+        self.finished = output.get("finished") == "True" or False
 
         return output
 
