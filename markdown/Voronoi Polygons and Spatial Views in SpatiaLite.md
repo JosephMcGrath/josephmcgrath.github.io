@@ -1,16 +1,19 @@
+---
+title: Voronoi Polygons and Spatial Views in SpatiaLite
+author: Joe McGrath
+date_created: 2018-05-15
+description: Creating Voronoi polygons live in SpatiaLite with examples.
+keyword: SpatiaLite
+         Voronoi
+         QGIS
+         QGIS 2
+         QGIS 3
+         Spatial Views
+         SQL
+         Guide
+finished: True
+---
 # Voronoi Polygons and Spatial Views in SpatiaLite
-@author = Joe McGrath
-@date_created = 2018-05-15
-@description = Creating Voronoi polygons live in SpatiaLite with examples.
-@keyword = SpatiaLite
-@keyword = Voronoi
-@keyword = QGIS
-@keyword = QGIS 2
-@keyword = QGIS 3
-@keyword = Spatial Views
-@keyword = SQL
-@keyword = Guide
-@finished = True
 
 ![An example set of voronoi polygons created using the mechanism outlined below.](/img/voronoi_example.jpg)
 

@@ -1,12 +1,15 @@
+---
+title: Ordinance Survey Grid Letters
+author: Joe McGrath
+date_created: 2018-05-15
+description: A brief overview of the prefixes used in the British Coordinate System.
+keyword: Ordinance Survey
+         British National Grid
+         Grid Sheet
+         Coordinate Systems
+finished: True
+---
 # Ordinance Survey Grid Letters
-@author = Joe McGrath
-@date_created = 2018-05-15
-@description = A brief overview of the prefixes used in the British Coordinate System.
-@keyword = Ordinance Survey
-@keyword = British National Grid
-@keyword = Grid Sheet
-@keyword = Coordinate Systems
-@finished = True
 
 ## Overview
 

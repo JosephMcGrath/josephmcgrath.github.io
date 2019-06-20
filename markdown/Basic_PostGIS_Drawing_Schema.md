@@ -1,13 +1,16 @@
+---
+title: Basic PostGIS Drawing Schema
+author: Joe McGrath
+date_created: 2018-08-28
+description: A run-down of a schema I created to hold and process drawing data in PostGIS.
+keyword: PostGIS
+         QGIS
+         Digitisation
+map: j-a003-01
+     j-a003-02
+finished: True
+---
 # Basic PostGIS Drawing Schema
-@author = Joe McGrath
-@date_created = 2018-08-28
-@description = A run-down of a schema I created to hold and process drawing data in PostGIS.
-@keyword = PostGIS
-@keyword = QGIS
-@keyword = Digitisation
-@map = j-a003-01
-@map = j-a003-02
-@finished = True
 
 ![A plan of my flat in a faux-blueprint style.](/map/j-a003-01.jpg)
 

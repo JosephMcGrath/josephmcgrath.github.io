@@ -1,14 +1,16 @@
+---
+title: Version Control for GeoJSON with Git
+author: Joe McGrath
+date_created: 2018-09-15
+description: Generating simple overviews with GPS data.
+keyword: Git
+         GIS
+         QGIS
+         GeoJSON
+         Version Control
+finished: True
+---
 # Version Control for GeoJSON with Git
-
-@author = Joe McGrath
-@date_created = 2018-09-15
-@description = Generating simple overviews with GPS data.
-@keyword = Git
-@keyword = GIS
-@keyword = QGIS
-@keyword = GeoJSON
-@keyword = Version Control
-@finished = True
 
 # Introduction
 

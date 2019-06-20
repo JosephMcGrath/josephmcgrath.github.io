@@ -1,14 +1,16 @@
+---
+title: Visibility in SpatiaLite - Ray Tracing
+author: Joe McGrath
+date_created: 2019-06-16
+description: Implementing a basic ray tracing algorithm in SpatiaLite.
+keyword: SpatiaLite
+         QGIS
+         Line of sight
+         Visibility
+         Ray tracing
+finished: True
+---
 # Visibility in SpatiaLite - Ray Tracing
-
-@author = Joe McGrath
-@date_created = 2019-06-16
-@description = Implementing a basic ray tracing algorithm in SpatiaLite.
-@keyword = SpatiaLite
-@keyword = QGIS
-@keyword = Line of sight
-@keyword = Visibility
-@keyword = Ray tracing
-@finished = True
 
 As a matter of curiosity I wanted to see if I could implement a simple ray-tracing algorithm in GIS. It's not something that I can see much practical application for day to day, just a bit of fun (though could be interesting for mapping visibility using a layer of buildings / fences).
 

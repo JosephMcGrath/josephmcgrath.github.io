@@ -9,34 +9,26 @@ import datetime
 
 class simple_markdown:
 
-    markdown_extensions = ["fenced_code"]
+    markdown_extensions = ["fenced_code", 'meta']
 
     def __init__(self, file_path):
+        markdown_parser = markdown.Markdown(extensions=self.markdown_extensions)
+
         with open(file_path, "r") as f:
             lines_in = f.readlines()
 
         self.file_path = file_path
         self.markdown = "".join([x for x in lines_in if not re.match(r"^\@", x)])
-        self.html = markdown.markdown(
-            self.markdown, extensions=self.markdown_extensions
-        )
+        self.html = markdown_parser.convert(self.markdown)
         self.title = [x for x in lines_in if re.match(r"^\# ", x)][0][1:].strip()
-        meta_temp = [x for x in lines_in if re.match(r"^\@", x)]
-        meta_temp = [re.split("=", x[1:]) for x in meta_temp]
-        meta_temp.append(("title", self.title))
-        self.meta = self.consolidate_meta(meta_temp)
+        self.meta = self.consolidate_meta(markdown_parser.Meta)
 
     def consolidate_meta(self, meta_seq):
-        temp = [
-            (self.strip_whitespace(key), self.strip_whitespace(value))
-            for key, value in meta_seq
-        ]
-        keys = set()
-        [keys.add(x[0]) for x in temp]
-
-        output = {}
-        for this_key in sorted(keys):
-            output[this_key] = ",".join([x[1] for x in temp if x[0] == this_key])
+        output = {
+            #self.strip_whitespace(key): ",".join(self.strip_whitespace(meta_seq[key]))
+            key: ",".join(meta_seq[key])
+            for key in meta_seq
+        }
 
         if "finished" in output:
             self.finished = output["finished"] == "True"

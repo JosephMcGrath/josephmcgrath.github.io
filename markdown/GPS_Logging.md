@@ -1,13 +1,16 @@
+---
+title: Visualising GPS Logs
+author: Joe McGrath
+date_created: 2018-09-15
+description: Generating simple overviews with GPS data.
+keyword: GPS
+         QGIS
+         PostGIS
+         Visualisation
+map: j-a002-01
+finished: True
+---
 # Visualising GPS Logs
-@author = Joe McGrath
-@date_created = 2018-09-15
-@description = Generating simple overviews with GPS data.
-@keyword = GPS
-@keyword = QGIS
-@keyword = PostGIS
-@keyword = Visualisation
-@map = j-a002-01
-@finished = True
 
 ![An overview of several years of GPS logs.](/map/j-a002-01.jpg)
 
