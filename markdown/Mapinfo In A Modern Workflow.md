@@ -16,10 +16,6 @@ While my main (and favourite) desktop GIS is QGIS (followed closely by FME), my 
 
 While it doesn't deserve a lot of the flack it gets, I wouldn't say it's a better GIS than others on the market. MapInfo certainly has its share of plus points (mainly its strong SQL integration).
 
-- The general UX downgrade that is the ribbon interface,
-    - Functionality is split up - context-switching to unhelpful ribbon tabs,
-    - useful functionality being hidden a few layers down,
-
 ## The Graphical Object
 
 If you're coming from Arc or QGIS, the main difference you'll find on a day-to-day data creation basis is that rather than setting styles on a layer-by-layer basis, the symbol information is stored as part of the 'Graphical Object' that MapInfo calls geometry + style. This can be nice if you want *this one point* to have a different style to all the others but I personally find it's a massive pain to have to manually maintain the layer styles (though you can update them automatically through scripts).
@@ -34,6 +30,8 @@ While this sounds like a pretty trivial change to make, it permeates a lot of th
 * The ability to manually style geometries seems to have stymied MapInfo support for thematic maps,
     * It does have *ok* support but it's definitely feels like a second-tier of functionality,
 - Bizarre quirk with labels not being part of the core styling,
+    - Limited label length??
+- About 50 software-specific geometry types,
 
 Within it's own system, MapInfo's fairly capable of decent-looking outputs, though it is heavily reliant on pre-built styles. Luckily a lot of this hassle can be bypassed with FME's MapInfoStyler transformer.
 
@@ -53,3 +51,16 @@ MapInfo integrates SQL directly into it's own programming language. While it's c
 
 - alias data type and it's tiny size limit.
 - WHERE clause on UPDATE
+
+## The Interface
+
+### Windows
+
+### Ribbon Interface
+
+- The general UX downgrade that is the ribbon interface,
+    - Functionality is split up - context-switching to unhelpful ribbon tabs,
+    - useful functionality being hidden a few layers down,
+
+![X](/img/mapinfo_ribbon_map.jpg)
+![X](/img/mapinfo_ribbon_spatial.jpg)

@@ -23,7 +23,7 @@ There's two levels to this grid in it's normal use, one inside the other. The fi
 
 ![The relevant portion of the 2-letter grid covering Great Britain.](/img/os_grid_detail.jpg)
 
-Due to the size of the grid it *does* technically extetend beyond the useful bounds of the UK. One neat feature of this grid is that the majority of the north of the UK starts with an 'N' grid sheet, while the south starts with an 'S' - I suspect someone had fun coming up with that, but it is easy to remember.
+Due to the size of the grid it *does* technically extended beyond the useful bounds of the UK. One neat feature of this grid is that the majority of the north of the UK starts with an 'N' grid sheet, while the south starts with an 'S' - I suspect someone had fun coming up with that, but it is easy to remember.
 
 ![Full extend of the grid naming system.](/img/os_grid_full.jpg)
 
@@ -31,7 +31,7 @@ Though I'd question *why* you'd want to use a system based on British National G
 
 ## Bringing sheets into GIS
 
-This style of reference are a little less convenient in a modern GIS. Every GIS I've seen is entirely country-agnostic and hasn't got direct support for systems that aren't purely numerical out of the box. It's not too difficult to pre-generate the sheets - I've got my own implimentation [in SpatiaLite here](https://github.com/JosephMcGrath/Misc-scripts/blob/master/SQLite/OS_Grid_Squares.sql). It would probably be quite easy to use these to convert coordinates to grid references with a trigger / function at the database layer.
+This style of reference are a little less convenient in a modern GIS. Every GIS I've seen is entirely country-agnostic and hasn't got direct support for systems that aren't purely numerical out of the box. It's not too difficult to pre-generate the sheets - I've got my own implementation [in SpatiaLite here](https://github.com/JosephMcGrath/Misc-scripts/blob/master/SQLite/OS_Grid_Squares.sql). It would probably be quite easy to use these to convert coordinates to grid references with a trigger / function at the database layer.
 
 One potential problem using these regularly is that these letters will require storing the coordinate as a text data type rather than pair of numbers.
 

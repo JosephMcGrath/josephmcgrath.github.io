@@ -34,7 +34,7 @@ The most obvious map to make of the election results is the percentage by which 
 
 ### Collating the Data
 
-To combine the table of vote results with their spatial extetents, I'm using SpatiaLite. This lets me use spatial SQL and store the data in a standalone file without much setup. After importing the data via the SpatiaLite GUI, I merged the data into a view:
+To combine the table of vote results with their spatial extents, I'm using SpatiaLite. This lets me use spatial SQL and store the data in a standalone file without much setup. After importing the data via the SpatiaLite GUI, I merged the data into a view:
 
 ```sql
 CREATE INDEX os_dist_borough_unitary_region_join_idx ON os_dist_borough_unitary_region(code);
@@ -177,13 +177,13 @@ The results of percentage turnout of electorate against vote ballance is quite i
 
 ## A Different Angle
 
-An aspect I'd like to explore is if there's any inherant bias in assessing percentage rather than actual vote counts. Just looking at the percentages makes it look like much more of a landslide than the actual 52% / 48% split. I don't know the criteria for defining the district borough unitary regions is - but I wouldn't be surprised if there was a trend for more densely populated urban regions to have higher total populations than rural ones.
+An aspect I'd like to explore is if there's any inherent bias in assessing percentage rather than actual vote counts. Just looking at the percentages makes it look like much more of a landslide than the actual 52% / 48% split. I don't know the criteria for defining the district borough unitary regions is - but I wouldn't be surprised if there was a trend for more densely populated urban regions to have higher total populations than rural ones.
 
 To check this, I've plotted out the histogram of total votes:
 
 ![The histogram bins for net total votes.](/img/uk-ref-vote_count_hist.jpg)
 
-It does seem that despite the fairly even bins for percentage votes, there are regions with much higher total vote counts for remain. I'll explore the result of plotting vote count rather than percentages. As plotting absolute counts on a choropleth with different-sized regions is bad practise I'm going with votes per unit area (in this case hectares). I suspect this pushes the bias in the other direction. The histogram of votes per area does seem to be significantly less ballanced:
+It does seem that despite the fairly even bins for percentage votes, there are regions with much higher total vote counts for remain. I'll explore the result of plotting vote count rather than percentages. As plotting absolute counts on a choropleth with different-sized regions is bad practise I'm going with votes per unit area (in this case hectares). I suspect this pushes the bias in the other direction. The histogram of votes per area does seem to be significantly less balanced:
 
 ![The histogram bins for votes per hectare](/img/uk-ref-vote_density_hist.jpg)
 

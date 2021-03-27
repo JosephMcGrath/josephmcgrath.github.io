@@ -139,7 +139,7 @@ Here, the inner query is the same, but rather than running any rings through ```
 
 The result of this being something like this (with broken ends being the large black dots):
 
-![Points identifying the breaks in linework at either end of a single line.](/img/drawing_polygon_breaks.jpg)
+![Points identifying the breaks in line-work at either end of a single line.](/img/drawing_polygon_breaks.jpg)
 
 With points correctly identifying that a two-point line isn't a closed loop - marvellous.
 
@@ -188,7 +188,7 @@ As always there's still a lot of room for improvements. The most obvious being t
 
 A few other improvements might be:
 
-* An extra layer of snapping lines that *might* be polygons together might be useful, but would require a lot of testing to work out a reasonable snapping thresold.
+* An extra layer of snapping lines that *might* be polygons together might be useful, but would require a lot of testing to work out a reasonable snapping threshold.
 * If this was in a production environment I'd probably tie down most of the input fields with foreign keys onto reference tables.
 * Also recording the instrument the recoding was made with (tape/laser) could highlight systematic problems.
 * One interesting possibility would be to use the additional measurements to automatically reconstruct the recorded geometries to better match the measurements as a whole (similar to how polygons are resized in cartograms).

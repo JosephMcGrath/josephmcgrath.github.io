@@ -1,0 +1,41 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"cSpell.words": [
+			"CSVs",
+			"CTE's",
+			"Chao",
+			"Dreamcast",
+			"EPSG",
+			"FME's",
+			"Gamecube",
+			"Pseudocolor",
+			"QGIS",
+			"SRID",
+			"Singleband",
+			"Spatia",
+			"Subnautica",
+			"TABLESPACE",
+			"Unioned",
+			"VARCHAR",
+			"Voronoi",
+			"btree",
+			"cartograms",
+			"chaiken",
+			"choropleth",
+			"colourblind",
+			"explaination",
+			"geotiff",
+			"hillshade",
+			"hillshades",
+			"linestring",
+			"linestrings",
+			"multipolygon",
+			"perc"
+		]
+	}
+}

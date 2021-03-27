@@ -70,7 +70,7 @@ Hillshading is very simple in newer versions of QGIS.
 2. Rather than 'Singleband Pseudocolor' use 'Hillshade'
 3. Most of the default settings should be fine.
    * I'd advise having the 'Azimuth' coming in from the top-left, otherwise terrain can appear inverted.
-   * You may need to play around with the 'Altitude' and 'Z Factor' (virtical exaggeration) setting, particularly in hilly areas.
+   * You may need to play around with the 'Altitude' and 'Z Factor' (vertical exaggeration) setting, particularly in hilly areas.
 4. Set the 'Blending mode' beneath the hillshade options to 'Multiply'
 5. Press ok.
 6. Make sure that the hillshade layer is above the pseudocolour layer in the legend.
@@ -91,7 +91,7 @@ Contours are fairly simple to create in QGIS, but need a little editing if you w
 
 ### Cleaning up the Contours
 
-On fine-scale data like most LiDAR, you might find that the contours produced are a little on the noisey side. The most effective way to clean this up is to delete all of the short contours. To do this, use the 'Select by Expression' tool:
+On fine-scale data like most LiDAR, you might find that the contours produced are a little on the noisy side. The most effective way to clean this up is to delete all of the short contours. To do this, use the 'Select by Expression' tool:
 
 ![The location of the 'Select by Expression' dialog menu in QGIS.](/img/qgis-2-select-by-expression.jpg)
 

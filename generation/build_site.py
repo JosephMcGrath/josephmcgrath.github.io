@@ -31,7 +31,7 @@ class simple_markdown:
         self.meta = markdown_parser.Meta
 
         if "finished" in self.meta:
-                self.finished = self.meta.get("finished")[0] == "True"
+            self.finished = self.meta.get("finished")[0] == "True"
         else:
             False
         self.title = self.meta.get("title")[0]

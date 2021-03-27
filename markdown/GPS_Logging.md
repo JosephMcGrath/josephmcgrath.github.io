@@ -30,7 +30,7 @@ I've opted for a somewhat over-the-top approach to recording points, with the ap
 
 I opted to do most of my processing in-database as the project was likely to be fairly data-intensive and access to indexes etc while running seemed like a good idea due to the relatively large quantity of data I'm generating.
 
-At first, I stored the data in a simple SpatiaLite database that also joined consecutive points into lines if they passed an accuracy / timing threshold, but that quickly got clogged up with the volume of data I was trying to throw around through it on a regular basis. I switched to PostGIS, with an R script on the front end to throw the csvs in automatically using ogr2ogr. Once the data was in the database, trigger functions handled the rest.
+At first, I stored the data in a simple SpatiaLite database that also joined consecutive points into lines if they passed an accuracy / timing threshold, but that quickly got clogged up with the volume of data I was trying to throw around through it on a regular basis. I switched to PostGIS, with an R script on the front end to throw the CSVs in automatically using ogr2ogr. Once the data was in the database, trigger functions handled the rest.
 
 It taken a little while to tune the triggers so that they run in a reasonable time. I tried not to assume that the data was coming in the exact right order of files / rows, so I couldn't just look at the previous point to see if a line needed to be created so I had to pull out all of the point within a particular duration - a functional index turned out to be a good method here. For example:
 

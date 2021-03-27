@@ -15,7 +15,7 @@ A problem I've came across a few times recently is digitising a clean set of pol
 The plan is to end up with a trigger that I can just throw data at, seamlessly doing the following:
 
 * Snapping to adjacent polygons.
-    * The difficulty here is work out a general-purpose tollerance - maybe use ````CASE```` to have a few.
+    * The difficulty here is work out a general-purpose tolerance - maybe use ````CASE```` to have a few.
 * Not covering existing polygons.
 * Only produces valid polygons.
 * **Never** breaks in a way that an edit will be lost.
@@ -83,7 +83,7 @@ Though as it later turns out, the queries are easier to read in the form of a tr
 
 ## Moving to Triggers
 
-Having got a setup that I was relitively happy with, I migrated things into a view and a trigger. I used a view so that I had more of a framework to build a properly normalised strucutre in.
+Having got a setup that I was relatively happy with, I migrated things into a view and a trigger. I used a view so that I had more of a framework to build a properly normalised structure in.
 
 ```sql
 CREATE VIEW edit_polygons AS SELECT
@@ -144,9 +144,9 @@ BEGIN
 END;
 ```
 
-This ended up being an unweildy pile of functions because of all the things I'm trying to do at once. I'm considering pushing out a lot of this into a few temporary tables to give a clearer syntax, though that might add quite a bit of overhead. Some savings might come from only having the ````ST_Union```` subquery once. This is going to need a little bit of testing - but if I can avoid the pyramid of function, then maintaining and tuning this will be a *lot* easier. If needed later I can just crunch down the end product into a single statement.
+This ended up being an unwieldy pile of functions because of all the things I'm trying to do at once. I'm considering pushing out a lot of this into a few temporary tables to give a clearer syntax, though that might add quite a bit of overhead. Some savings might come from only having the ````ST_Union```` subquery once. This is going to need a little bit of testing - but if I can avoid the pyramid of function, then maintaining and tuning this will be a *lot* easier. If needed later I can just crunch down the end product into a single statement.
 
-More importantly - this actually does most of what I'm after, dealing with most small digitisaion problems.
+More importantly - this actually does most of what I'm after, dealing with most small digitisation problems.
 
 ## Using a Temporary Table
 

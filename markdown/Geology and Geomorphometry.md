@@ -15,7 +15,7 @@ This is something of a rehash / autopsy of my postgrad dissertation. The basic i
 
 ## The Theory
 
-The core bit of theory here is that the different type of rock will erode in a different (and ideally charictaristic) way. The problem comes with the fact that there's a *whole* range of factors that play into erosion and interfere with getting a clear signal.
+The core bit of theory here is that the different type of rock will erode in a different (and ideally characteristic) way. The problem comes with the fact that there's a *whole* range of factors that play into erosion and interfere with getting a clear signal.
 
 ### Rock Type
 
@@ -23,12 +23,13 @@ Depending on the context, there's a few ways to define the 'type' of a rock. Nor
 
 ### Erodability
 
-I have a fairly limited training in the theory of erosion but as I see it, the main factors are:
+I have a fairly limited training in the theory of erosion but as I understand it, the main factors are:
 
 * The meso-scale properties of the rock.
-    * Prone to fractures etc.
-    * Chemistry -
-* The environment the rock's in.
+    * Some rocks will be more prone to fracturing etc than others,
+    * Chemistry - some rocks (e.g. limestone) will erode when exposed to carbonic acid,
+* Local tectonics
+* The environment the rock's in -
 * Location-specific issues.
 * Human interaction.
 

@@ -62,7 +62,7 @@ The table ````base_point```` is the stand-in for an actual input data.
 ````sql
 CREATE TABLE base_point (
     pid INTEGER PRIMARY KEY
-  , point_set INTEGER NOT NULL /*A Vorojoi diagram will be created for each unique entry in this column.*/
+  , point_set INTEGER NOT NULL /*A Voronoi diagram will be created for each unique entry in this column.*/
   , some_data VARCHAR /*Some example data to attach to the outputs.*/
   , the_geom POINT
 );
@@ -97,7 +97,7 @@ VALUES
   , (1, 'preserved', MakePoint(ABS(RANDOM() / POWER(10, 16)), ABS(RANDOM() / POWER(10, 16)), 27700))
   , (2, 'through', MakePoint(ABS(RANDOM() / POWER(10, 16)), ABS(RANDOM() / POWER(10, 16)), 27700))
   , (2, 'the', MakePoint(ABS(RANDOM() / POWER(10, 16)), ABS(RANDOM() / POWER(10, 16)), 27700))
-  , (2, 'Vorojoi', MakePoint(ABS(RANDOM() / POWER(10, 16)), ABS(RANDOM() / POWER(10, 16)), 27700))
+  , (2, 'Voronoi', MakePoint(ABS(RANDOM() / POWER(10, 16)), ABS(RANDOM() / POWER(10, 16)), 27700))
   , (3, 'creation', MakePoint(ABS(RANDOM() / POWER(10, 16)), ABS(RANDOM() / POWER(10, 16)), 27700))
   , (3, 'process', MakePoint(ABS(RANDOM() / POWER(10, 16)), ABS(RANDOM() / POWER(10, 16)), 27700))
   , (3, 'and', MakePoint(ABS(RANDOM() / POWER(10, 16)), ABS(RANDOM() / POWER(10, 16)), 27700))
@@ -151,7 +151,7 @@ WHERE GeometryN(v.the_geom, p.pid) IS NOT NULL;
 
 But this assumes that the pid column will be an unbroken sequence from 1 to the number of rows in the table. That's not an *unreasonable* assumption but the moment the input does into actual use, there's going to be missing or out-of sequence values and there'll be missing geometries. It's also arguably breaks the first normal form by assuming a certain order to the rows.
 
-A more robust approach is to use a subquery to generate a set of values based on the number of parts in each geomery.
+A more robust approach is to use a subquery to generate a set of values based on the number of parts in each geometry.
 
 ````sql
 CREATE VIEW voronoi_split AS SELECT
@@ -169,11 +169,11 @@ WHERE
 
 So now we've got a view with one row per polygon, but no data attached.
 
-Another way to work it might be to have a pre-generated table of a numbers, but that requires a certain knowledge about the input data set and I'm trying to make something that's theoretically robust - even if it's a little impractical (and makes some scrifices on performance).
+Another way to work it might be to have a pre-generated table of a numbers, but that requires a certain knowledge about the input data set and I'm trying to make something that's theoretically robust - even if it's a little impractical (and makes some sacrifices on performance).
 
 ### Re-joining the Data
 
-Joining the data from the base point table's very easy. Just a spatial inner join (as the points are guarenteed to be within their own voronoi polygon):
+Joining the data from the base point table's very easy. Just a spatial inner join (as the points are guaranteed to be within their own voronoi polygon):
 
 ````sql
 CREATE VIEW voronoi_out AS SELECT
