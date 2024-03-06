@@ -1,20 +1,17 @@
 ---
-title: Basic PostGIS Drawing Schema
 author: Joe McGrath
-date_created: 2018-08-28
-description: A run-down of a schema I created to hold and process drawing data in PostGIS.
-keyword: PostGIS
-         QGIS
-         Digitisation
-map: j-a003-01
-     j-a003-02
-finished: True
+published: 2018-08-28
+tags:
+- blog
+- digitisation
+- postgres
+- qgis
+title: Basic PostGIS Drawing Schema
 ---
-# Basic PostGIS Drawing Schema
 
-![A plan of my flat in a faux-blueprint style.](/map/j-a003-01.jpg)
+![](img/j-a003-01.jpg)
 
-## Background
+# Background
 
 This is a project from a year or two ago when I wanted to make a floor-plan of the flat I was living in at the time. As this was just a personal project I wanted a free/open solution, my first port of call was a open-source CAD programs. After some investigation I didn't find anything that really fitted what I wanted satisfactorily.
 
@@ -22,7 +19,7 @@ Every option either didn't have the sophistication of digitisation tools that I 
 
 As I already know QGIS to a reasonable level, and was busy learning about PostGIS at the time I was predisposed to use them to solve my problem. I could use QGIS as a front-end to digitise everything, and use PostGIS to hold the data and open up a range of features for post-processing of all the data as I went.
 
-## Introduction
+# Introduction
 
 The overall data structure I was aiming for was to have the majority of elements to be digitised as simple linestrings as I recorded them (e.g. each measured section as a single line). About halfway through I also started recoding the actual measurements that each line had in real life - allowing me to make the drawing 'look' right by joining up as they do in reality where minor inaccuracies in the measurements accumulated to make walls not quite work.
 
@@ -30,9 +27,9 @@ This feature got used most often where lines weren't actually straight or corner
 
 If end-point snapping is used properly in QGIS, it should be fairly simple to dynamically join them together in the back-end and create polygons. I've not given any thought to fixing errors automatically (joining lines that are very close together) - but as the underlying data isn't modified, there's no real risk of screwing up anything permanently (also has the option to have snapped/unsnapped views).
 
-## Code
+# Code
 
-### Storing the Data
+## Storing the Data
 
 To quickly run through the SQL I used to create / hold the data. First the structure to put the data in:
 
@@ -51,27 +48,21 @@ VALUES
   , ('below');
 
 CREATE TABLE drawing_data.line_in (
-    oid SERIAL
-        PRIMARY KEY
-  , drawing_name VARCHAR
-        NOT NULL
-  , item_category VARCHAR
-        NOT NULL
-  , item_name VARCHAR
-  , measured_length FLOAT
-  , to_label BOOLEAN
-        DEFAULT FALSE
-  , label_position VARCHAR
-        REFERENCES drawing_data.label_position
-  , label_offset FLOAT
-  , the_geom GEOMETRY(LINESTRING, 27700)
-        NOT NULL
+    oid              SERIAL   PRIMARY KEY
+  , drawing_name     VARCHAR  NOT NULL
+  , item_category    VARCHAR  NOT NULL
+  , item_name        VARCHAR
+  , measured_length  FLOAT
+  , to_label         BOOLEAN  DEFAULT FALSE
+  , label_position   VARCHAR  REFERENCES drawing_data.label_position
+  , label_offset     FLOAT
+  , the_geom         GEOMETRY(LINESTRING, 27700)  NOT NULL
 );
 ```
 
 Which gives me all the information I need to be going on with. There might be an argument to streamline the set of fields used, but this'll do for now.
 
-### Joining up the Lines
+## Joining up the Lines
 
 Merging the individual segments into a series of polygons is a fairly straightforward 2 step process:
 
@@ -115,11 +106,11 @@ The ```joined_line``` view merges all the lines based on their ```drawing_name``
 
 A simple example of this is shown below - with a series of 4 lines being merged together into a rectangle while ignoring a standalone linestring with the same underlying data because it's not linked.
 
-![A series of separate lines merged into a polygon.](/img/drawing_polygon_creation.jpg)
+![](img/drawing_polygon_creation.jpg)
 
 Admittedly a lot of the actual work here is being done by ```ST_LineMerge```, but I'm happy with the added level of versatility over just the raw function.
 
-### Identifying Errors
+## Identifying Errors
 
 Working with this setup for a while worked pretty well, but did result in a few frustrating moments when trying to identify the breaks where one part of a long set of lines didn't *quite* connect up. To fix that I can just modify the polygon-generating view slightly:
 
@@ -139,11 +130,11 @@ Here, the inner query is the same, but rather than running any rings through ```
 
 The result of this being something like this (with broken ends being the large black dots):
 
-![Points identifying the breaks in line-work at either end of a single line.](/img/drawing_polygon_breaks.jpg)
+![](img/drawing_polygon_breaks.jpg)
 
 With points correctly identifying that a two-point line isn't a closed loop - marvellous.
 
-### Getting an Idea of Accuracy
+## Getting an Idea of Accuracy
 
 Earlier, I said that I was recording the actual distances measured in addition to the line drawn. This was partially a concession to my budget tools and lack of experience with this kind of work but also I believe it's important to know *where* errors exist if it's practical to do so. Ideally all the lines would be the exact size measured, but I need to have all my lines joining perfectly to generate polygons and a few cursory measurements show that my walls aren't exactly perpendicular to each other.
 
@@ -178,11 +169,11 @@ ORDER BY
 
 I've opted for a diverging colour scheme here to differentiate lines that are larger or smaller than their measurements. As they also increase in saturation out from 0% difference, that also makes finding absolute accuracy pretty easy too.
 
-![The same plan of my flat as above, but with line accuracy overlaid.](/map/j-a003-02.jpg)
+![](img/j-a003-02.jpg)
 
 And from this it's pretty obvious that the worst inaccuracies are for multi-part measurements (e.g. from my front door to the bathroom doorframe). That makes a lot of sense as the handover spot isn't fixed. Most of the longest measurements are pretty good with the top half of the flat being a little over and the lower half being under.
 
-## Future Improvements
+# Future Improvements
 
 As always there's still a lot of room for improvements. The most obvious being that I am kinda implementing a *very* basic version of [topology extension for PostGIS](https://postgis.net/docs/Topology.html). It would probably be worth seeing if its possible to get any mileage out of that before going much further.
 

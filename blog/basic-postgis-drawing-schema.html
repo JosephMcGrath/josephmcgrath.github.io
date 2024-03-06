@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta name="title" content="Basic PostGIS Drawing Schema"/>
-  <meta name="author" content="Joe McGrath"/>
-  <meta name="date_created" content="2018-08-28"/>
-  <meta name="description" content="A run-down of a schema I created to hold and process drawing data in PostGIS."/>
-  <meta name="keyword" content="PostGIS,QGIS,Digitisation"/>
-  <meta name="map" content="j-a003-01,j-a003-02"/>
-  <meta name="finished" content="True"/>
+  <meta name="title" content="Basic PostGIS Drawing Schema" />
+  <meta name="tags" content="blog, digitisation, postgres, qgis" />
+  <meta name="published" content="2018-08-28" />
 
   <title>Basic PostGIS Drawing Schema</title>
+  
 
-  <link rel="stylesheet" type="text/css" href="/main.css">
+  <link rel="stylesheet" type="text/css" href='/code.css'>
+  <link rel="stylesheet" type="text/css" href='/main.css'>
 
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -21,160 +20,319 @@
   <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
   <meta name="theme-color" content="#ffffff">
 </head>
+
 <body>
-<nav class="nav-bar">
-  <img src="/nav-bar-icon.png">
+  <nav class="nav-bar">
+    <img src="/nav-bar-icon.png">
     <p>Joe McGrath</p>
     <a href="/index.html">Home</a>
-    <a href="/blog/blogs.html">Blogs</a>
-    <!--<a href="/map/maps.html">Maps</a>-->
-</nav>
-<div class = "main">
+    <a href="/blogs.html">Blogs</a>
+  </nav>
+
+  <main>
+    
+
 <h1>Basic PostGIS Drawing Schema</h1>
-<p><img alt="A plan of my flat in a faux-blueprint style." src="/map/j-a003-01.jpg" /></p>
-<h2>Background</h2>
-<p>This is a project from a year or two ago when I wanted to make a floor-plan of the flat I was living in at the time. As this was just a personal project I wanted a free/open solution, my first port of call was a open-source CAD programs. After some investigation I didn't find anything that really fitted what I wanted satisfactorily.</p>
-<p>Every option either didn't have the sophistication of digitisation tools that I was after or had some weird compromise in it's file format. From my point of view - the prime advantage of a CAD program is a suite of tools to get designs accurately and efficiently into the digital space and display them in a useful way so I wasn't that keen to learn a program that didn't satisfy those criteria.</p>
-<p>As I already know QGIS to a reasonable level, and was busy learning about PostGIS at the time I was predisposed to use them to solve my problem. I could use QGIS as a front-end to digitise everything, and use PostGIS to hold the data and open up a range of features for post-processing of all the data as I went.</p>
-<h2>Introduction</h2>
-<p>The overall data structure I was aiming for was to have the majority of elements to be digitised as simple linestrings as I recorded them (e.g. each measured section as a single line). About halfway through I also started recoding the actual measurements that each line had in real life - allowing me to make the drawing 'look' right by joining up as they do in reality where minor inaccuracies in the measurements accumulated to make walls not quite work.</p>
-<p>This feature got used most often where lines weren't actually straight or corners weren't as precise as the round figures I digitised with. Obviously this doesn't 'fix' inaccurate measurements or compensate for sloppy measurements (which I was certainly guilty of in some areas). The aim is to allow the complexities of real life to be simplified while still having some idea where the simplification was put in.</p>
-<p>If end-point snapping is used properly in QGIS, it should be fairly simple to dynamically join them together in the back-end and create polygons. I've not given any thought to fixing errors automatically (joining lines that are very close together) - but as the underlying data isn't modified, there's no real risk of screwing up anything permanently (also has the option to have snapped/unsnapped views).</p>
-<h2>Code</h2>
-<h3>Storing the Data</h3>
-<p>To quickly run through the SQL I used to create / hold the data. First the structure to put the data in:</p>
-<pre><code class="sql">CREATE SCHEMA drawing_data;
 
-CREATE TABLE drawing_data.label_position (
-    label_position TEXT PRIMARY KEY
-);
+<header>
+    <p>
+        Published: <i>28/08/2018</i>
+    </p>
 
-INSERT INTO drawing_data.label_position
-    (label_position)
-VALUES
-    ('above')
-  , ('on')
-  , ('below');
+    
+    <p>
+        Tags: 
+        <a>blog</a>, 
+        <a>digitisation</a>, 
+        <a>postgres</a>, 
+        <a>qgis</a>
+    </p>
+    
+</header>
 
-CREATE TABLE drawing_data.line_in (
-    oid SERIAL
-        PRIMARY KEY
-  , drawing_name VARCHAR
-        NOT NULL
-  , item_category VARCHAR
-        NOT NULL
-  , item_name VARCHAR
-  , measured_length FLOAT
-  , to_label BOOLEAN
-        DEFAULT FALSE
-  , label_position VARCHAR
-        REFERENCES drawing_data.label_position
-  , label_offset FLOAT
-  , the_geom GEOMETRY(LINESTRING, 27700)
-        NOT NULL
-);
+<hr />
+
+<div class="blog">
+    <p>
+ <img alt="" src="/img/j-a003-01.jpg"/>
+</p>
+<h2>
+ Background
+</h2>
+<p>
+ This is a project from a year or two ago when I wanted to make a floor-plan of the flat I was living in at the time. As this was just a personal project I wanted a free/open solution, my first port of call was a open-source CAD programs. After some investigation I didn't find anything that really fitted what I wanted satisfactorily.
+</p>
+<p>
+ Every option either didn't have the sophistication of digitisation tools that I was after or had some weird compromise in it's file format. From my point of view - the prime advantage of a CAD program is a suite of tools to get designs accurately and efficiently into the digital space and display them in a useful way so I wasn't that keen to learn a program that didn't satisfy those criteria.
+</p>
+<p>
+ As I already know QGIS to a reasonable level, and was busy learning about PostGIS at the time I was predisposed to use them to solve my problem. I could use QGIS as a front-end to digitise everything, and use PostGIS to hold the data and open up a range of features for post-processing of all the data as I went.
+</p>
+<h2>
+ Introduction
+</h2>
+<p>
+ The overall data structure I was aiming for was to have the majority of elements to be digitised as simple linestrings as I recorded them (e.g. each measured section as a single line). About halfway through I also started recoding the actual measurements that each line had in real life - allowing me to make the drawing 'look' right by joining up as they do in reality where minor inaccuracies in the measurements accumulated to make walls not quite work.
+</p>
+<p>
+ This feature got used most often where lines weren't actually straight or corners weren't as precise as the round figures I digitised with. Obviously this doesn't 'fix' inaccurate measurements or compensate for sloppy measurements (which I was certainly guilty of in some areas). The aim is to allow the complexities of real life to be simplified while still having some idea where the simplification was put in.
+</p>
+<p>
+ If end-point snapping is used properly in QGIS, it should be fairly simple to dynamically join them together in the back-end and create polygons. I've not given any thought to fixing errors automatically (joining lines that are very close together) - but as the underlying data isn't modified, there's no real risk of screwing up anything permanently (also has the option to have snapped/unsnapped views).
+</p>
+<h2>
+ Code
+</h2>
+<h3>
+ Storing the Data
+</h3>
+<p>
+ To quickly run through the SQL I used to create / hold the data. First the structure to put the data in:
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">;</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">label_position</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">label_position</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span>
+<span class="p">);</span>
+
+<span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">label_position</span>
+<span class="w">    </span><span class="p">(</span><span class="n">label_position</span><span class="p">)</span>
+<span class="k">VALUES</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'above'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="s1">'on'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="s1">'below'</span><span class="p">);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">line_in</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">oid</span><span class="w">              </span><span class="nb">SERIAL</span><span class="w">   </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">drawing_name</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="w">  </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">item_category</span><span class="w">    </span><span class="nb">VARCHAR</span><span class="w">  </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">item_name</span><span class="w">        </span><span class="nb">VARCHAR</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">measured_length</span><span class="w">  </span><span class="nb">FLOAT</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">to_label</span><span class="w">         </span><span class="nb">BOOLEAN</span><span class="w">  </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">FALSE</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">label_position</span><span class="w">   </span><span class="nb">VARCHAR</span><span class="w">  </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">label_position</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">label_offset</span><span class="w">     </span><span class="nb">FLOAT</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">the_geom</span><span class="w">         </span><span class="n">GEOMETRY</span><span class="p">(</span><span class="n">LINESTRING</span><span class="p">,</span><span class="w"> </span><span class="mi">27700</span><span class="p">)</span><span class="w">  </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<span class="p">);</span>
 </code></pre>
-
-<p>Which gives me all the information I need to be going on with. There might be an argument to streamline the set of fields used, but this'll do for now.</p>
-<h3>Joining up the Lines</h3>
-<p>Merging the individual segments into a series of polygons is a fairly straightforward 2 step process:</p>
-<ol>
-<li>Join up the lines into a single linestring where the ends meet.</li>
-<li>Convert any of the new lines that are closed into a polygon.</li>
-</ol>
-<p>Both of these steps are handled by this SQL:</p>
-<pre><code class="sql">CREATE OR REPLACE VIEW drawing_data.joined_line AS SELECT
-    MIN(line_in.oid) AS oid
-  , line_in.drawing_name
-  , line_in.item_category
-  , line_in.item_name
-  , ST_Dump(
-        ST_LineMerge(
-             ST_Union(line_in.the_geom)
-        )
-    ) AS the_geom
-FROM drawing_data.line_in
-GROUP BY
-  , line_in.drawing_name
-  , line_in.item_category
-  , line_in.item_name;
-
-CREATE OR REPLACE VIEW drawing_data.merged_polygon AS SELECT
-    row_number() OVER () AS pid
-  , oid
-  , x.drawing_name
-  , x.item_category
-  , x.item_name
-  , ST_MakePolygon((x.the_geom).geom) AS geom
-FROM joined_line AS x
-WHERE
-    ST_IsClosed((x.the_geom).geom)
-ORDER BY
-    ST_Area(ST_MakePolygon((x.the_geom).geom)) DESC;
-</code></pre>
-
-<p>The <code>joined_line</code> view merges all the lines based on their <code>drawing_name</code>, <code>item_category</code> and <code>item_name</code>, creates a single line where they join up and then breaks the separate elements of this geometry into separate records (so all of the objects of the same type are briefly a single multiline in here before being split off. After this, the <code>merged_polygon</code> view makes a polygon out of any closed rings, ordered so that larder polygons are rendered first (and won't cover smaller ones).</p>
-<p>A simple example of this is shown below - with a series of 4 lines being merged together into a rectangle while ignoring a standalone linestring with the same underlying data because it's not linked.</p>
-<p><img alt="A series of separate lines merged into a polygon." src="/img/drawing_polygon_creation.jpg" /></p>
-<p>Admittedly a lot of the actual work here is being done by <code>ST_LineMerge</code>, but I'm happy with the added level of versatility over just the raw function.</p>
-<h3>Identifying Errors</h3>
-<p>Working with this setup for a while worked pretty well, but did result in a few frustrating moments when trying to identify the breaks where one part of a long set of lines didn't <em>quite</em> connect up. To fix that I can just modify the polygon-generating view slightly:</p>
-<pre><code class="sql">CREATE OR REPLACE VIEW drawing_data.broken_line AS  SELECT
-    row_number() OVER () AS pid
-  , x.drawing_name
-  , x.item_category
-  , x.item_name
-  , ST_Boundary((x.the_geom).geom) AS the_geom
-FROM drawing_data.joined_line AS x
-WHERE
-    NOT ST_IsClosed((x.the_geom).geom);
-</code></pre>
-
-<p>Here, the inner query is the same, but rather than running any rings through <code>ST_MakePolygon</code>, I'm putting the non-ring outputs through <code>ST_Boundary</code>. As the boundary of a line is its end-points this creates a point geometry at the breaks in rings, letting them be easily knitted together.</p>
-<p>The result of this being something like this (with broken ends being the large black dots):</p>
-<p><img alt="Points identifying the breaks in linework at either end of a single line." src="/img/drawing_polygon_breaks.jpg" /></p>
-<p>With points correctly identifying that a two-point line isn't a closed loop - marvellous.</p>
-<h3>Getting an Idea of Accuracy</h3>
-<p>Earlier, I said that I was recording the actual distances measured in addition to the line drawn. This was partially a concession to my budget tools and lack of experience with this kind of work but also I believe it's important to know <em>where</em> errors exist if it's practical to do so. Ideally all the lines would be the exact size measured, but I need to have all my lines joining perfectly to generate polygons and a few cursory measurements show that my walls aren't exactly perpendicular to each other.</p>
-<p>This view calculates a few relevant statistics about the difference between measured and digitised lengths:</p>
-<pre><code class="sql">CREATE OR REPLACE VIEW drawing_data.line_diffs AS SELECT
-    line_in.oid
-  , line_in.drawing_name
-  , line_in.item_category
-  , line_in.measured_length
-  , ROUND(ST_Length(line_in.the_geom)::numeric, 3) AS line_length
-  , ROUND((ST_Length(line_in.the_geom) - line_in.measured_length)::numeric, 3) AS abs_diff
-  , ROUND(((ST_Length(line_in.the_geom) - line_in.measured_length
-            ) / line_in.measured_length * 100::double precision
-            )::numeric,
-          2
-          ) AS perc_diff
-  , line_in.the_geom
-FROM
-    drawing_data.line_in
-WHERE
-    line_in.measured_length IS NOT NULL AND
-    ABS((ST_Length(line_in.the_geom) - line_in.measured_length)) &gt;= 0.001::double precision
-ORDER BY
-    ROUND(((ST_Length(line_in.the_geom) - line_in.measured_length
-            ) / line_in.measured_length * 100::double precision
-            )::numeric,
-          2
-          ) DESC;
-</code></pre>
-
-<p>I've opted for a diverging colour scheme here to differentiate lines that are larger or smaller than their measurements. As they also increase in saturation out from 0% difference, that also makes finding absolute accuracy pretty easy too.</p>
-<p><img alt="The same plan of my flat as above, but with line accuracy overlaid." src="/map/j-a003-02.jpg" /></p>
-<p>And from this it's pretty obvious that the worst inaccuracies are for multi-part measurements (e.g. from my front door to the bathroom doorframe). That makes a lot of sense as the handover spot isn't fixed. Most of the longest measurements are pretty good with the top half of the flat being a little over and the lower half being under.</p>
-<h2>Future Improvements</h2>
-<p>As always there's still a lot of room for improvements. The most obvious being that I am kinda implementing a <em>very</em> basic version of <a href="https://postgis.net/docs/Topology.html">topology extension for PostGIS</a>. It would probably be worth seeing if its possible to get any mileage out of that before going much further.</p>
-<p>A few other improvements might be:</p>
-<ul>
-<li>An extra layer of snapping lines that <em>might</em> be polygons together might be useful, but would require a lot of testing to work out a reasonable snapping thresold.</li>
-<li>If this was in a production environment I'd probably tie down most of the input fields with foreign keys onto reference tables.</li>
-<li>Also recording the instrument the recoding was made with (tape/laser) could highlight systematic problems.</li>
-<li>One interesting possibility would be to use the additional measurements to automatically reconstruct the recorded geometries to better match the measurements as a whole (similar to how polygons are resized in cartograms).</li>
-</ul>
 </div>
+<p>
+ Which gives me all the information I need to be going on with. There might be an argument to streamline the set of fields used, but this'll do for now.
+</p>
+<h3>
+ Joining up the Lines
+</h3>
+<p>
+ Merging the individual segments into a series of polygons is a fairly straightforward 2 step process:
+</p>
+<ol>
+ <li>
+  Join up the lines into a single linestring where the ends meet.
+ </li>
+ <li>
+  Convert any of the new lines that are closed into a polygon.
+ </li>
+</ol>
+<p>
+ Both of these steps are handled by this SQL:
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">joined_line</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span>
+<span class="w">    </span><span class="k">MIN</span><span class="p">(</span><span class="n">line_in</span><span class="p">.</span><span class="n">oid</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">oid</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">drawing_name</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">item_category</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">item_name</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">ST_Dump</span><span class="p">(</span>
+<span class="w">        </span><span class="n">ST_LineMerge</span><span class="p">(</span>
+<span class="w">             </span><span class="n">ST_Union</span><span class="p">(</span><span class="n">line_in</span><span class="p">.</span><span class="n">the_geom</span><span class="p">)</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">the_geom</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">line_in</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">drawing_name</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">item_category</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">item_name</span><span class="p">;</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">merged_polygon</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">row_number</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pid</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">oid</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">drawing_name</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">item_category</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">item_name</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">ST_MakePolygon</span><span class="p">((</span><span class="n">x</span><span class="p">.</span><span class="n">the_geom</span><span class="p">).</span><span class="n">geom</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">geom</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">joined_line</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">x</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">ST_IsClosed</span><span class="p">((</span><span class="n">x</span><span class="p">.</span><span class="n">the_geom</span><span class="p">).</span><span class="n">geom</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">ST_Area</span><span class="p">(</span><span class="n">ST_MakePolygon</span><span class="p">((</span><span class="n">x</span><span class="p">.</span><span class="n">the_geom</span><span class="p">).</span><span class="n">geom</span><span class="p">))</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre>
+</div>
+<p>
+ The
+ <code>
+  joined_line
+ </code>
+ view merges all the lines based on their
+ <code>
+  drawing_name
+ </code>
+ ,
+ <code>
+  item_category
+ </code>
+ and
+ <code>
+  item_name
+ </code>
+ , creates a single line where they join up and then breaks the separate elements of this geometry into separate records (so all of the objects of the same type are briefly a single multiline in here before being split off. After this, the
+ <code>
+  merged_polygon
+ </code>
+ view makes a polygon out of any closed rings, ordered so that larder polygons are rendered first (and won't cover smaller ones).
+</p>
+<p>
+ A simple example of this is shown below - with a series of 4 lines being merged together into a rectangle while ignoring a standalone linestring with the same underlying data because it's not linked.
+</p>
+<p>
+ <img alt="" src="/img/drawing_polygon_creation.jpg"/>
+</p>
+<p>
+ Admittedly a lot of the actual work here is being done by
+ <code>
+  ST_LineMerge
+ </code>
+ , but I'm happy with the added level of versatility over just the raw function.
+</p>
+<h3>
+ Identifying Errors
+</h3>
+<p>
+ Working with this setup for a while worked pretty well, but did result in a few frustrating moments when trying to identify the breaks where one part of a long set of lines didn't
+ <em>
+  quite
+ </em>
+ connect up. To fix that I can just modify the polygon-generating view slightly:
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">broken_line</span><span class="w"> </span><span class="k">AS</span><span class="w">  </span><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">row_number</span><span class="p">()</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">pid</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">drawing_name</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">item_category</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">.</span><span class="n">item_name</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">ST_Boundary</span><span class="p">((</span><span class="n">x</span><span class="p">.</span><span class="n">the_geom</span><span class="p">).</span><span class="n">geom</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">the_geom</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">joined_line</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">x</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="k">NOT</span><span class="w"> </span><span class="n">ST_IsClosed</span><span class="p">((</span><span class="n">x</span><span class="p">.</span><span class="n">the_geom</span><span class="p">).</span><span class="n">geom</span><span class="p">);</span>
+</code></pre>
+</div>
+<p>
+ Here, the inner query is the same, but rather than running any rings through
+ <code>
+  ST_MakePolygon
+ </code>
+ , I'm putting the non-ring outputs through
+ <code>
+  ST_Boundary
+ </code>
+ . As the boundary of a line is its end-points this creates a point geometry at the breaks in rings, letting them be easily knitted together.
+</p>
+<p>
+ The result of this being something like this (with broken ends being the large black dots):
+</p>
+<p>
+ <img alt="" src="/img/drawing_polygon_breaks.jpg"/>
+</p>
+<p>
+ With points correctly identifying that a two-point line isn't a closed loop - marvellous.
+</p>
+<h3>
+ Getting an Idea of Accuracy
+</h3>
+<p>
+ Earlier, I said that I was recording the actual distances measured in addition to the line drawn. This was partially a concession to my budget tools and lack of experience with this kind of work but also I believe it's important to know
+ <em>
+  where
+ </em>
+ errors exist if it's practical to do so. Ideally all the lines would be the exact size measured, but I need to have all my lines joining perfectly to generate polygons and a few cursory measurements show that my walls aren't exactly perpendicular to each other.
+</p>
+<p>
+ This view calculates a few relevant statistics about the difference between measured and digitised lengths:
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">line_diffs</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">line_in</span><span class="p">.</span><span class="n">oid</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">drawing_name</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">item_category</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">measured_length</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">ROUND</span><span class="p">(</span><span class="n">ST_Length</span><span class="p">(</span><span class="n">line_in</span><span class="p">.</span><span class="n">the_geom</span><span class="p">)::</span><span class="nb">numeric</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">line_length</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">ROUND</span><span class="p">((</span><span class="n">ST_Length</span><span class="p">(</span><span class="n">line_in</span><span class="p">.</span><span class="n">the_geom</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">measured_length</span><span class="p">)::</span><span class="nb">numeric</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">abs_diff</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">ROUND</span><span class="p">(((</span><span class="n">ST_Length</span><span class="p">(</span><span class="n">line_in</span><span class="p">.</span><span class="n">the_geom</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">measured_length</span>
+<span class="w">            </span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">measured_length</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">::</span><span class="n">double</span><span class="w"> </span><span class="k">precision</span>
+<span class="w">            </span><span class="p">)::</span><span class="nb">numeric</span><span class="p">,</span>
+<span class="w">          </span><span class="mi">2</span>
+<span class="w">          </span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">perc_diff</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">the_geom</span>
+<span class="k">FROM</span>
+<span class="w">    </span><span class="n">drawing_data</span><span class="p">.</span><span class="n">line_in</span>
+<span class="k">WHERE</span>
+<span class="w">    </span><span class="n">line_in</span><span class="p">.</span><span class="n">measured_length</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="k">ABS</span><span class="p">((</span><span class="n">ST_Length</span><span class="p">(</span><span class="n">line_in</span><span class="p">.</span><span class="n">the_geom</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">measured_length</span><span class="p">))</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">001</span><span class="p">::</span><span class="n">double</span><span class="w"> </span><span class="k">precision</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span>
+<span class="w">    </span><span class="n">ROUND</span><span class="p">(((</span><span class="n">ST_Length</span><span class="p">(</span><span class="n">line_in</span><span class="p">.</span><span class="n">the_geom</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">measured_length</span>
+<span class="w">            </span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">line_in</span><span class="p">.</span><span class="n">measured_length</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">::</span><span class="n">double</span><span class="w"> </span><span class="k">precision</span>
+<span class="w">            </span><span class="p">)::</span><span class="nb">numeric</span><span class="p">,</span>
+<span class="w">          </span><span class="mi">2</span>
+<span class="w">          </span><span class="p">)</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
+</code></pre>
+</div>
+<p>
+ I've opted for a diverging colour scheme here to differentiate lines that are larger or smaller than their measurements. As they also increase in saturation out from 0% difference, that also makes finding absolute accuracy pretty easy too.
+</p>
+<p>
+ <img alt="" src="/img/j-a003-02.jpg"/>
+</p>
+<p>
+ And from this it's pretty obvious that the worst inaccuracies are for multi-part measurements (e.g. from my front door to the bathroom doorframe). That makes a lot of sense as the handover spot isn't fixed. Most of the longest measurements are pretty good with the top half of the flat being a little over and the lower half being under.
+</p>
+<h2>
+ Future Improvements
+</h2>
+<p>
+ As always there's still a lot of room for improvements. The most obvious being that I am kinda implementing a
+ <em>
+  very
+ </em>
+ basic version of
+ <a href="https://postgis.net/docs/Topology.html">
+  topology extension for PostGIS
+ </a>
+ . It would probably be worth seeing if its possible to get any mileage out of that before going much further.
+</p>
+<p>
+ A few other improvements might be:
+</p>
+<ul>
+ <li>
+  An extra layer of snapping lines that
+  <em>
+   might
+  </em>
+  be polygons together might be useful, but would require a lot of testing to work out a reasonable snapping threshold.
+ </li>
+ <li>
+  If this was in a production environment I'd probably tie down most of the input fields with foreign keys onto reference tables.
+ </li>
+ <li>
+  Also recording the instrument the recoding was made with (tape/laser) could highlight systematic problems.
+ </li>
+ <li>
+  One interesting possibility would be to use the additional measurements to automatically reconstruct the recorded geometries to better match the measurements as a whole (similar to how polygons are resized in cartograms).
+ </li>
+</ul>
+
+</div>
+
+  </main>
 </body>
+
 </html>

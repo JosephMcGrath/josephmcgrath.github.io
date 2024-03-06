@@ -1,7 +1,7 @@
 ---
 title: Visibility in SpatiaLite - Ray Tracing
 author: Joe McGrath
-date_created: 2019-06-16
+published: 2019-06-16
 description: Implementing a basic ray tracing algorithm in SpatiaLite.
 keyword: SpatiaLite
          QGIS
@@ -10,7 +10,6 @@ keyword: SpatiaLite
          Ray tracing
 finished: True
 ---
-# Visibility in SpatiaLite - Ray Tracing
 
 As a matter of curiosity I wanted to see if I could implement a simple ray-tracing algorithm in GIS. It's not something that I can see much practical application for day to day, just a bit of fun (though could be interesting for mapping visibility using a layer of buildings / fences).
 
@@ -158,6 +157,6 @@ WHERE NOT ST_Intersects(the_geom, (SELECT ST_Buffer(the_geom, 10000) FROM base_p
 
 The result does take quite a while to process (there's a whole bunch of optimisations that could be made if it was important, but it's not relevant at this stage).
 
-![Several examples of the ray-tracing algorithm working with ordinance survey building data.](/img/ray-tracing_examples.jpg)
+![Several examples of the ray-tracing algorithm working with ordinance survey building data.](img/ray-tracing_examples.jpg)
 
 The Openmap Local buildings are a little busy for 256 rays to handle perfectly, meaning there's a little bit of clipping involved but at a coarse scale everything seems to work as intended. The full code for this [is up on GitHub](https://github.com/JosephMcGrath/Misc-scripts/blob/master/SQLite/Ray_Trace.sql).

@@ -1,26 +1,46 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-{% if metadata%}{% for meta in metadata %}  <meta name="{{meta}}" content="{{metadata[meta]}}"/>
-{% endfor %}{% endif %}
-{% if title%}  <title>{{title}}</title>{% endif %}
-{% if hard_style %}  <style type="text/css">
-  {{hard_style}}
-  </style>{% endif %}
-{% if style and not hard_style %}  <link rel="stylesheet" type="text/css" href="{{style}}">{% endif %}
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  {%- if metadata is defined -%}
+
+  {%- for key, value in metadata | items %}
+  {% if value is string -%}
+  <meta name="{{key}}" content="{{value}}" />
+  {%- elif value is iterable -%}
+  <meta name="{{key}}" content="{{value | join(', ')}}" />
+  {%- else -%}
+  <meta name="{{key}}" content="{{value}}" />
+  {%- endif -%}
+  {%- endfor %}
+
+  <title>{{metadata["title"]}}</title>
+  {% endif %}
+
+  <link rel="stylesheet" type="text/css" href='{{url("code.css")}}'>
+  <link rel="stylesheet" type="text/css" href='{{url("main.css")}}'>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="{{url('apple-touch-icon.png')}}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{url('favicon-32x32.png')}}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{url('favicon-16x16.png')}}">
+  <link rel="manifest" href="{{url('manifest.json')}}">
+  <link rel="mask-icon" href="{{url('safari-pinned-tab.svg')}}" color="#5bbad5">
   <meta name="theme-color" content="#ffffff">
 </head>
+
 <body>
-{% include 'nav_bar.html' %}
-<div class = "main">
-{{body}}
-</div>
+  <nav class="nav-bar">
+    <img src="{{url('nav-bar-icon.png')}}">
+    <p>Joe McGrath</p>
+    <a href="{{url('index.html')}}">Home</a>
+    <a href="{{url('blogs.html')}}">Blogs</a>
+  </nav>
+
+  <main>
+    {% block body %} {% endblock %}
+  </main>
 </body>
+
 </html>

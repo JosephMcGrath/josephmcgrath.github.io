@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="title" content="Visibility in SpatiaLite - Ray Tracing" />
+  <meta name="tags" content="" />
+  <meta name="published" content="2019-06-16" />
+
+  <title>Visibility in SpatiaLite - Ray Tracing</title>
+  
+
+  <link rel="stylesheet" type="text/css" href='/code.css'>
+  <link rel="stylesheet" type="text/css" href='/main.css'>
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="theme-color" content="#ffffff">
+</head>
+
+<body>
+  <nav class="nav-bar">
+    <img src="/nav-bar-icon.png">
+    <p>Joe McGrath</p>
+    <a href="/index.html">Home</a>
+    <a href="/blogs.html">Blogs</a>
+  </nav>
+
+  <main>
+    
+
+<h1>Visibility in SpatiaLite - Ray Tracing</h1>
+
+<header>
+    <p>
+        Published: <i>16/06/2019</i>
+    </p>
+
+    
+</header>
+
+<hr />
+
+<div class="blog">
+    <p>
+ As a matter of curiosity I wanted to see if I could implement a simple ray-tracing algorithm in GIS. It's not something that I can see much practical application for day to day, just a bit of fun (though could be interesting for mapping visibility using a layer of buildings / fences).
+</p>
+<p>
+ There's enough functionality in SpatiaLite to do this fairly simply - but it's a bit awkward working with multi-part geometries. As normal this would be easier in PostGIS but I like the portability of SpatiaLite.
+</p>
+<p>
+ First things first we're going to need a table of angles:
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">angles</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="w"> </span><span class="nb">REAL</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">);</span>
+
+<span class="k">WITH</span><span class="w"> </span><span class="k">RECURSIVE</span><span class="w"> </span><span class="n">angle_temp</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="mi">360</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">256</span><span class="p">)</span>
+<span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">angle_temp</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">360</span>
+<span class="p">)</span>
+
+<span class="k">INSERT</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">IGNORE</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">angles</span><span class="w"> </span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">Radians</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">angle_temp</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">d</span><span class="p">;</span>
+</code></pre>
+</div>
+<p>
+ This creates a list of angles (in radians) that I can use to generate "rays" at uniform angles.
+</p>
+<p>
+ For the sake of this proof of concept I'm using three layers. The first is "base points" that have a line of sight (with the sight column representing how far the point can "see"):
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">base_point</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">fid</span><span class="w"> </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">sight</span><span class="w"> </span><span class="nb">REAL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">the_geom</span><span class="w"> </span><span class="n">POINT</span>
+<span class="p">);</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="n">RecoverGeometryColumn</span><span class="p">(</span><span class="s1">'base_point'</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s1">'the_geom'</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="mi">27700</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s1">'POINT'</span><span class="p">);</span>
+</code></pre>
+</div>
+<p>
+ A set of "walls" that block lines of sight:
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">wall</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">fid</span><span class="w"> </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">the_geom</span><span class="w"> </span><span class="n">LINESTRING</span>
+<span class="p">);</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="n">RecoverGeometryColumn</span><span class="p">(</span><span class="s1">'wall'</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s1">'the_geom'</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="mi">27700</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s1">'LINESTRING'</span><span class="p">);</span>
+</code></pre>
+</div>
+<p>
+ And then a table to hold the final lines of sight. In theory this could all be done with live views but a straight table updated with triggers is a little more reliable for testing:
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">los</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">fid</span><span class="w"> </span><span class="nb">INTEGER</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">the_geom</span><span class="w"> </span><span class="n">POLYGON</span>
+<span class="p">);</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="n">RecoverGeometryColumn</span><span class="p">(</span><span class="s1">'los'</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s1">'the_geom'</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="mi">27700</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="s1">'POLYGON'</span><span class="p">);</span>
+</code></pre>
+</div>
+<p>
+ Now to go through the ray-tracing algorithm. First generate a set of rays. This is complicated by the
+ <code>
+  ST_Project
+ </code>
+ function being a little bit weird. It always expects lon/lat coordinates so you have to pass through WGS84 on the way through. It'd be possible to do the same with
+ <code>
+  ST_Translate
+ </code>
+ and a little trigonometry too.
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">base_ray</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">fid</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">angle</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">MakeLine</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span>
+<span class="w">             </span><span class="n">ST_Transform</span><span class="p">(</span><span class="n">ST_Project</span><span class="p">(</span><span class="n">ST_Transform</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span><span class="w"> </span><span class="mi">4326</span><span class="p">),</span><span class="w"> </span><span class="n">sight</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">),</span><span class="w"> </span><span class="n">ST_SRID</span><span class="p">(</span><span class="n">the_geom</span><span class="p">))</span>
+<span class="w">             </span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">the_geom</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">base_point</span><span class="w"> </span><span class="k">CROSS</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">angles</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+</code></pre>
+</div>
+<p>
+ Then split them by the wall geometries. This step requires a two-part solution as otherwise a "split ray" is generated for each geometry the ray passes through. There's also a bit of an assumption that
+ <code>
+  ST_Split
+ </code>
+ returns geometry parts in the same order as the original.
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">split_ray</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span>
+<span class="w">    </span><span class="n">r</span><span class="p">.</span><span class="n">fid</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">angle</span>
+<span class="w">  </span><span class="p">,</span><span class="w"> </span><span class="k">Coalesce</span><span class="p">(</span><span class="n">ST_GeometryN</span><span class="p">(</span><span class="n">ST_Split</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">the_geom</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">.</span><span class="n">the_geom</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">),</span>
+<span class="w">             </span><span class="n">r</span><span class="p">.</span><span class="n">the_geom</span>
+<span class="w">             </span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">the_geom</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">base_ray</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">r</span>
+<span class="w">    </span><span class="k">LEFT</span><span class="w"> </span><span class="k">OUTER</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">wall</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">w</span>
+<span class="w">        </span><span class="k">ON</span><span class="w"> </span><span class="n">ST_Intersects</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">the_geom</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">.</span><span class="n">the_geom</span><span class="p">);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">shortest_split_ray</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">angle</span><span class="p">,</span><span class="w"> </span><span class="n">the_geom</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">split_ray</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">angle</span>
+<span class="k">HAVING</span><span class="w"> </span><span class="n">ST_LENGTH</span><span class="p">(</span><span class="n">the_geom</span><span class="p">)</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="k">MIN</span><span class="p">(</span><span class="n">ST_LENGTH</span><span class="p">(</span><span class="n">the_geom</span><span class="p">));</span>
+</code></pre>
+</div>
+<p>
+ Next the far ends of each of these rays can be joined to create a single line, which can then be closed to make a closed ring:
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">unclosed_ring</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">MakeLine</span><span class="p">(</span><span class="n">ST_PointN</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">the_geom</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">shortest_split_ray</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">fid</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">angle</span><span class="p">;</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">VIEW</span><span class="w"> </span><span class="n">view_ring</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">AddPoint</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span><span class="w"> </span><span class="n">ST_StartPoint</span><span class="p">(</span><span class="n">the_geom</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">the_geom</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">unclosed_ring</span><span class="p">;</span>
+</code></pre>
+</div>
+<p>
+ Finally I define a set of triggers to update the line of sight geometry whenever the base point is updated:
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TRIGGER</span><span class="w"> </span><span class="n">los_calc_insert</span><span class="w"> </span><span class="k">AFTER</span><span class="w"> </span><span class="k">INSERT</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">base_point</span>
+<span class="k">BEGIN</span>
+<span class="w">    </span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">los</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">the_geom</span><span class="p">)</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">MakePolygon</span><span class="p">(</span><span class="n">the_geom</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">view_ring</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">fid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">NEW</span><span class="p">.</span><span class="n">fid</span><span class="p">;</span>
+<span class="k">END</span><span class="p">;</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TRIGGER</span><span class="w"> </span><span class="n">los_calc_update</span><span class="w"> </span><span class="k">AFTER</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">base_point</span>
+<span class="k">BEGIN</span>
+
+<span class="w">    </span><span class="k">DELETE</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">los</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">fid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">OLD</span><span class="p">.</span><span class="n">fid</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">los</span><span class="w"> </span><span class="p">(</span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">the_geom</span><span class="p">)</span>
+<span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">fid</span><span class="p">,</span><span class="w"> </span><span class="n">MakePolygon</span><span class="p">(</span><span class="n">the_geom</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">view_ring</span>
+<span class="w">    </span><span class="k">WHERE</span><span class="w"> </span><span class="n">fid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">NEW</span><span class="p">.</span><span class="n">fid</span><span class="p">;</span>
+<span class="k">END</span><span class="p">;</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TRIGGER</span><span class="w"> </span><span class="n">los_calc_delete</span><span class="w"> </span><span class="k">AFTER</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">base_point</span>
+<span class="k">BEGIN</span>
+
+<span class="w">    </span><span class="k">DELETE</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">los</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">fid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">OLD</span><span class="p">.</span><span class="n">fid</span><span class="p">;</span>
+
+<span class="k">END</span><span class="p">;</span>
+</code></pre>
+</div>
+<p>
+ Last thing of all is to fire up QGIS and play about with the layers I've made. As an experiment I'm trying out Ordinance Survey
+ <a href="https://www.ordnancesurvey.co.uk/business-and-government/products/os-open-map-local.html">
+  Openmap Local
+ </a>
+ :
+</p>
+<div class="codehilite">
+ <pre><span></span><code><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">wall</span><span class="w"> </span><span class="p">(</span><span class="n">the_geom</span><span class="p">)</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">ST_ExteriorRing</span><span class="p">(</span><span class="n">the_geom</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">sk_building</span><span class="p">;</span>
+
+<span class="k">SELECT</span><span class="w"> </span><span class="n">CreateSpatialIndex</span><span class="p">(</span><span class="s1">'wall'</span><span class="p">,</span><span class="w"> </span><span class="s1">'the_geom'</span><span class="p">);</span>
+
+<span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">base_point</span><span class="w"> </span><span class="p">(</span><span class="n">sight</span><span class="p">,</span><span class="w"> </span><span class="n">the_geom</span><span class="p">)</span>
+<span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="n">MakePoint</span><span class="p">(</span><span class="mi">459400</span><span class="p">,</span><span class="mi">379000</span><span class="p">,</span><span class="w"> </span><span class="mi">27700</span><span class="p">));</span>
+
+<span class="k">DELETE</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">wall</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">ST_Intersects</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">ST_Buffer</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span><span class="w"> </span><span class="mi">10000</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">base_point</span><span class="p">));</span>
+</code></pre>
+</div>
+<p>
+ The result does take quite a while to process (there's a whole bunch of optimisations that could be made if it was important, but it's not relevant at this stage).
+</p>
+<p>
+ <img alt="Several examples of the ray-tracing algorithm working with ordinance survey building data." src="/img/ray-tracing_examples.jpg"/>
+</p>
+<p>
+ The Openmap Local buildings are a little busy for 256 rays to handle perfectly, meaning there's a little bit of clipping involved but at a coarse scale everything seems to work as intended. The full code for this
+ <a href="https://github.com/JosephMcGrath/Misc-scripts/blob/master/SQLite/Ray_Trace.sql">
+  is up on GitHub
+ </a>
+ .
+</p>
+
+</div>
+
+  </main>
+</body>
+
+</html>

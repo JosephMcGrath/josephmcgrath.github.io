@@ -1,22 +1,21 @@
 ---
 title: LiDAR Data and Contours in QGIS 2
 author: Joe McGrath
-date_created: 2017-08-19
+published: 2017-08-19
 description: A guide to visualising LiDAR and creating contours in QGIS 2.
-keyword: QGIS
-         QGIS 2
-         LiDAR
-         Contours
-         Guide
-finished: True
+tags:
+- QGIS
+- QGIS 2
+- LiDAR
+- Contours
+- Guide
 ---
-# LiDAR Data and Contours in QGIS 2
 
 *Note - this was written for QGIS 2 and hasn't been updated for QGIS 3.*
 
-![An example output of LiDAR data.](/img/qgis-2-lidar-example.jpg)
+![An example output of LiDAR data.](img/qgis-2-lidar-example.jpg)
 
-## Getting LiDAR into QGIS
+# Getting LiDAR into QGIS
 
 Most sources of LiDAR data I've seen (and raster data in general) comes split into tiles for a number of reasons. This does causes us a few problems when using the data:
 
@@ -39,15 +38,15 @@ The processing steps to create a virtual raster are:
     * More programs have support for single-raster files then virtual ones.
     * In my experience, features like pyramids work a bit more consistently on single files.
 
-![The Build Virtual Raster menu in QGIS.](/img/qgis-2-build-virtual-raster.jpg)
+![The Build Virtual Raster menu in QGIS.](img/qgis-2-build-virtual-raster.jpg)
 
 From this image, you can see an example. The big box full of file paths is a bit of a giveaway to what's *actually* happening here. One of the major open-source components of QGIS is *GDAL*, which handles the bult of raster processing. In this example, QGIS is acting as an intermediary between the user and gdalbuildvrt which actually builds the virtual raster.
 
-## Displaying the LiDAR
+# Displaying the LiDAR
 
 As an example I'll assume the desired output is a hillshade (aka shaded relief) with height themed by colour and contours over the top.
 
-### Theme by Height (pseudocolour)
+## Theme by Height (pseudocolour)
 
 The simplest of these is elevation themed by height. The previous step should have loaded the data into QGIS (if it hasn't you should be able to load it through the 'Add Raster Layer' menu), so go into the layer properties for the LiDAR data:
 
@@ -62,7 +61,7 @@ The simplest of these is elevation themed by height. The previous step should ha
     * And you can set a 'Label Unit suffix' so it shows up as something like '140 m AD' rather than just '140'.
 5. Press ok or apply (you might need to go back and forth to find a scheme that works for you).
 
-### Hillshade
+## Hillshade
 
 Hillshading is very simple in newer versions of QGIS.
 
@@ -79,7 +78,7 @@ In older versions, there's an option to create hillshades using the 'Raster Terr
 
 A note of caution for calculating hillshades on the fly - it re-calculates itself dynamically, so if you're planning to view the data up-close you're better off pre-calculating it through the Terrain Analysis Plugin. Otherwise if you zoom in far enough to see individual pixels then they get shaded as if they're cuboid blocks. You can see a little bit of this effect in the buildings shown at the top of the page.
 
-## Creating Contours
+# Creating Contours
 
 Contours are fairly simple to create in QGIS, but need a little editing if you want something for presentation:
 
@@ -89,11 +88,11 @@ Contours are fairly simple to create in QGIS, but need a little editing if you w
 4. I'd advise setting elevation to an attribute.
 5. Press 'OK' - processing might take a few minutes depending on how much data you're using.
 
-### Cleaning up the Contours
+## Cleaning up the Contours
 
 On fine-scale data like most LiDAR, you might find that the contours produced are a little on the noisy side. The most effective way to clean this up is to delete all of the short contours. To do this, use the 'Select by Expression' tool:
 
-![The location of the 'Select by Expression' dialog menu in QGIS.](/img/qgis-2-select-by-expression.jpg)
+![The location of the 'Select by Expression' dialog menu in QGIS.](img/qgis-2-select-by-expression.jpg)
 
 I prefer to use an expression that makes a distinction between lines that form closed contours and ones that don't (meaning that contours at the edge of your data have a bit more leeway to be short):
 
@@ -107,28 +106,28 @@ Then delete all of the lines selected by this (you'll need to set the layer to e
 
 The default theme for lines in QGIS is a semi-random colour of medium width, which probably isn't what you're after. I normally go for semi-transparent black lines with height labels.
 
-## Additional notes.
+# Additional notes.
 
-### LiDAR types.
+## LiDAR types.
 
 The distinction between DSM (Digital Surface Model) and DTM (Digital Terrain Model) is pretty important for this type of work. A surface model will include buildings and trees and make a very messy set of countours - so I'd advise a terrain model which has those features processed out. My personal preference is to use a surface model for the hillshade, but a terrain model for both the pseudocolour layer and contours. That avoids both the messy contours of a DSM and the unnatural flat areas where buildings were removed from the DTM.
 
-### Blend Modes
+## Blend Modes
 
 Rather than using blend modes, an alternative to show both the elevation and hillshade would be to use transparency with a  'normal' blend mode. This gives a desaturated look that I've always thought of as a bit 'plastic'. This has the advantage of showing up contour lines a bit better no-matter what your colour ramp is. There's a comparison of the two below:
 
-![A comparison of different methods of stacking hillshades with pseudocolour imagery.](/img/qgis-2-lidar-blend-comparison.jpg)
+![A comparison of different methods of stacking hillshades with pseudocolour imagery.](img/qgis-2-lidar-blend-comparison.jpg)
 
-### Further Contour Processing
+## Further Contour Processing
 
 When you zoom further in to the contours they might start to look a bit blocky (which makes sense - they came from blocks in the first place). The easiest way to get rid of this is with the smoothing tool, for which you'll need to be using QGIS with GRASS (GRASS is another open-source program that QGIS uses for additional functionality). In the processing toolbox (processing -> toolbox) and search for v.generalise.smooth. There is a smoothing function built into QGIS - but it doesn't seem to give as good results for this task.
 
 I've put together a comparison of the algorithms on a set of contours (not including the 'snakes' algorithm which caused QGIS to crash whenever I tried it):
 
-![An example of the boyle smoothing algorithm available through GRASS.](/img/qgis-2-lidar-smoothing-comparison-boyle.jpg)  
-![An example of the sliding average smoothing algorithm available through GRASS.](/img/qgis-2-lidar-smoothing-comparison-sliding-average.jpg)  
-![An example of the distance weighting smoothing algorithm available through GRASS.](/img/qgis-2-lidar-smoothing-comparison-distance-weighting.jpg)  
-![An example of the chaiken smoothing algorithm available through GRASS.](/img/qgis-2-lidar-smoothing-comparison-chaiken.jpg)  
-![An example of the hermite smoothing algorithm available through GRASS.](/img/qgis-2-lidar-smoothing-comparison-hermite.jpg)  
+![An example of the boyle smoothing algorithm available through GRASS.](img/qgis-2-lidar-smoothing-comparison-boyle.jpg)  
+![An example of the sliding average smoothing algorithm available through GRASS.](img/qgis-2-lidar-smoothing-comparison-sliding-average.jpg)  
+![An example of the distance weighting smoothing algorithm available through GRASS.](img/qgis-2-lidar-smoothing-comparison-distance-weighting.jpg)  
+![An example of the chaiken smoothing algorithm available through GRASS.](img/qgis-2-lidar-smoothing-comparison-chaiken.jpg)  
+![An example of the hermite smoothing algorithm available through GRASS.](img/qgis-2-lidar-smoothing-comparison-hermite.jpg)  
 
 From these, I'd personally choose the 'distance weighting' algorithm as it seems to produce the smoothest results (assuming aesthetics are the only aim here) with 'chaiken' being a good candidate for maintaining shape. Though it's worth pointing out that these algorithms are topologically 'dumb' and don't care if the smoothing causes contour lines to cross themselves or other lines.

@@ -1,4 +1,6 @@
+{% extends "page.html" %}
 
+{% block body %}
 <div class = "block">
   <h1>Joe McGrath</h1>
   <p>This is my personal page, it's likely to end up a bit of a mishmash of blogs, tutorials and annotated snippets of code.</p>
@@ -14,5 +16,6 @@
 <div class = "block">
   <h2>Blogs</h2>
   <p>Sometimes I write blogs, they're a mix of speculation, small projects I've done, walkthroughs and anything else that comes to mind.</p>
-  <a href="blog/blogs.html" class = "button">Go to the blogs.</a>
+  <a href="{{url('blogs.html')}}" class = "button">Go to the blogs.</a>
 </div>
+{% endblock %}

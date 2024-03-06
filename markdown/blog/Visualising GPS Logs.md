@@ -1,24 +1,24 @@
 ---
-title: Visualising GPS Logs
 author: Joe McGrath
-date_created: 2018-09-15
 description: Generating simple overviews with GPS data.
-keyword: GPS
-         QGIS
-         PostGIS
-         Visualisation
-map: j-a002-01
-finished: True
+published: 2018-09-15
+tags:
+- blog
+- gps
+- postgis
+- postgres
+- qgis
+- visualisation
+title: Visualising GPS Logs
 ---
-# Visualising GPS Logs
 
-![An overview of several years of GPS logs.](/map/j-a002-01.jpg)
+![](img/j-a002-01.jpg)
 
-## Introduction
+# Introduction
 
 I've been collecting GPS data using my phone for about a year and a half now (partially out of curiosity and partially so I could have a data-set of my own to play around with). Currently my processing is pretty simple and just pointed at creating a few pretty [firefly-style maps](https://adventuresinmapping.com/2016/10/17/firefly-cartography). I've had to sit on this project for a little while because the most interesting outputs all plainly identify my house or a friend's house, but having moved house recently has freed that up significantly.
 
-## Collecting Data
+# Collecting Data
 
 My point-collection setup went through a few iterations before I settled on a final version. The first (stupid) method was manually putting down points in QField on my phone (which I was experimenting with at the time). I stopped doing this pretty quickly as it was dull, didn't collect much in the way of metadata and was pretty unsafe (I almost walked into a few roads while looking at my phone).
 
@@ -26,7 +26,7 @@ The next (and current) solution is to use a purpose-built app to record the data
 
 I've opted for a somewhat over-the-top approach to recording points, with the app recording one every 2 seconds while I'm moving. Over the past year and a bit this has generated quite a large number of points - which has made visualisation pretty interesting at the other end.
 
-## Storing the Data
+# Storing the Data
 
 I opted to do most of my processing in-database as the project was likely to be fairly data-intensive and access to indexes etc while running seemed like a good idea due to the relatively large quantity of data I'm generating.
 
@@ -43,7 +43,7 @@ CREATE INDEX gps_point_time_plus_20_idx
 
 This resulted in a pipeline where I could just offload csv files into a folder whenever it was convenient, run the R script and have all my data run through my processing automatically.
 
-## Visualising the Output
+# Visualising the Output
 
 Visualisation of this data has been quite a fun challenge, as it's got harder as time went on. When I only had a few points and lines I could have bold arrows on the lines and other decoration on my geometries. As the points built up things started to get more and more cluttered. A few of the problems I've noticed are:
 
@@ -59,11 +59,11 @@ So my end result was to have faint lines in the background, overlaid by variable
 
 Below I've got a quick example of the difference that even very faint lines make:
 
-![An example of an area made clearer by the addition of lines.](/img/gps-traces-with-lines.jpg)
+![](img/gps-traces-with-lines.jpg)
 
 This does end up making the output look quite a bit more busy, particularly in areas I've been through multiple times (as it adds up to a lighter background). Personally I prefer having the lines in for less-travelled areas.
 
-## More Detail on the Database
+# More Detail on the Database
 
 As I've already mentioned, I'd put together a small SpatiaLite database to store my first results - but as the data set passed several months SQLite started to act as a bottleneck on a few operations (or at least my understanding of how indexes in SQLite work). I ended up switching to PostGIS, which also seems to have improved performance (with the full code being [here](https://github.com/JosephMcGrath/Misc-scripts/tree/master/PostGreSQL/Schema_GPS_Data)).
 

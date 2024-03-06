@@ -1,29 +1,24 @@
 ---
-title: Voronoi Polygons and Spatial Views in SpatiaLite
 author: Joe McGrath
-date_created: 2018-05-15
 description: Creating Voronoi polygons live in SpatiaLite with examples.
-keyword: SpatiaLite
-         Voronoi
-         QGIS
-         QGIS 2
-         QGIS 3
-         Spatial Views
-         SQL
-         Guide
-finished: True
+published: 2018-05-15
+tags:
+- blog
+- gis
+- spatialite
+- sqlite
+title: Voronoi Polygons and Spatial Views in SpatiaLite
 ---
-# Voronoi Polygons and Spatial Views in SpatiaLite
 
 ![An example set of voronoi polygons created using the mechanism outlined below.](/img/voronoi_example.jpg)
 
-## SpatiaLite
+# SpatiaLite
 
 [SpatiaLite](https://www.gaia-gis.it/fossil/libspatialite/index) is an extension for the widely used SQLite database. Like it's . It's open-source and provides reasonable support for spatial SQL in a portable format. It also has a bit of history with the open-source desktop GIS QGIS and works well with it once you get to grips with how they expect to work together.
 
 Here I'm running through [some code](https://github.com/JosephMcGrath/Misc-scripts/blob/master/SQLite/Voronoi_View.sql) I wrote a while back in a little more detail.
 
-## Spatial Views
+# Spatial Views
 
 When I talk about spatial views, I mean a standard SQL view that has an attached geometry (particularly views that generate their own geometry, rather than just passing through a base column). There's nothing special about a spatial view in database terms, it's just a label applied for making the view accessible in a GIS as a typical 'layer'. In this example I'm going through creating a set of Voronoi Polygons for a set of points in SpatiaLite.
 
@@ -39,7 +34,7 @@ It's fairly easy to create a spatial view - but making it usable in QGIS require
     * Requires a numeric primary key.
     * Must be loaded as a *SpatiaLite* layer rather than a generic vector one (for most things other than just looking at the layer).
 
-## Voronoi Polygons in SpatiaLite
+# Voronoi Polygons in SpatiaLite
 
 SpatiaLite has [a function](http://www.gaia-gis.it/gaia-sins/spatialite-sql-4.2.0.html#p14c) that generates voronoi polygons. ````VoronojDiagram```` is not that convenient for everyday use as it takes a single multi-geometry (probably a multi-point) and outputs a single multi-polygon. In most cases what we want is to push in a table of points and return a table of polygons and it's not too difficult to manually do this.
 
@@ -55,7 +50,7 @@ The set of operations is going to be:
 
 But first, we need some data to work with. I'm just using a set of randomly generated points.
 
-### Generating Example Data
+## Generating Example Data
 
 The table ````base_point```` is the stand-in for an actual input data.
 
@@ -113,7 +108,7 @@ One additional spanner I'm throwing in the works is the fact that, in normal usa
 DELETE FROM base_point WHERE pid = 2;
 ````
 
-### Merging the Inputs and creating the polygons
+## Merging the Inputs and creating the polygons
 
 Merging the inputs and generating the raw voronoi polygons is simple enough to do in a single step using ````ST_Union```` and ````GROUP BY````:
 
@@ -132,7 +127,7 @@ GROUP BY
 
 So now we've got a table with one row for each collection of points. The next step is to split them up.
 
-### Splitting the Polygons
+## Splitting the Polygons
 
 The theory of this is really simple. Just use ````GeometryN```` to split the geometries. The problem being that SQLite doesn't natively have any sort of ````generate_series```` function like PostGIS. The naive approach would be to use the pid column like:
 
@@ -171,7 +166,7 @@ So now we've got a view with one row per polygon, but no data attached.
 
 Another way to work it might be to have a pre-generated table of a numbers, but that requires a certain knowledge about the input data set and I'm trying to make something that's theoretically robust - even if it's a little impractical (and makes some sacrifices on performance).
 
-### Re-joining the Data
+## Re-joining the Data
 
 Joining the data from the base point table's very easy. Just a spatial inner join (as the points are guaranteed to be within their own voronoi polygon):
 
@@ -195,7 +190,7 @@ SELECT * FROM voronoi_out;
 
 Shows we've got all the data through intact. If I was just working in SpatiaLite on it's own this is where the process could stop - but I'm after visualising the results in QGIS.
 
-### Registering the View for use in QGIS
+## Registering the View for use in QGIS
 
 To register a view, we need a base table with a geometry of the same kind. If we had more tables with polygons we *could* register against that - but it starts to build up unexpected dependencies in the database. I favour a table of dummy geometries:
 

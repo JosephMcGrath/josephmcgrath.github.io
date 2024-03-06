@@ -3,7 +3,7 @@ body {
   margin: auto;
   padding: 1em;
   line-height: 20px;
-  background-color:#fff0d9;
+  background-color: #fff0d9;
   color: #000000;
   font-family: "Liberation Sans", sans-serif;
   font-size: 12pt;
@@ -15,7 +15,7 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  background-color:#326342;
+  background-color: #326342;
   padding-top: 1px;
   padding-bottom: 1px;
   width: 100vw;
@@ -64,7 +64,7 @@ body {
   margin: 0;
 }
 
-.main {
+main {
   padding-top: 2em;
 }
 
@@ -90,8 +90,12 @@ body {
 
 
 /*Headings */
-
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   text-decoration: underline;
   text-transform: capitalize;
 }
@@ -101,53 +105,47 @@ h1 {
   font-size: 2.2em;
 }
 
-h2 {
-  font-size: 1.5em;
-  text-transform: capitalize;
-  counter-reset: c3;
-}
+.blog {
+  h2 {
+    font-size: 1.5em;
+    text-transform: capitalize;
+    counter-reset: c3;
+  }
 
-h2::before {
-  counter-increment: c2;
-  content: counter(c2) " - ";
-}
+  h2::before {
+    counter-increment: c2;
+    content: counter(c2) " - ";
+  }
 
-h3 {
-  font-size: 1.1em;
-  counter-reset: c4;
-}
+  h3 {
+    font-size: 1.1em;
+    counter-reset: c4;
+  }
 
-h3:before {
-  counter-increment: c3;
-  content: counter(c2) "." counter(c3) " - ";
-}
+  h3:before {
+    counter-increment: c3;
+    content: counter(c2) "." counter(c3) " - ";
+  }
 
-h4 {
-  font-size: 1.1em;
-  font-style: italic;
-}
+  h4 {
+    font-size: 1.1em;
+    font-style: italic;
+  }
 
-h4:before {
-  counter-increment: c4;
-  content: counter(c2) "." counter(c3) "." counter(c4) " - ";
-}
+  h4:before {
+    counter-increment: c4;
+    content: counter(c2) "." counter(c3) "." counter(c4) " - ";
+  }
 
-h5 {
-  font-size: 1.1em;
-  font-style: italic;
-}
+  h5 {
+    font-size: 1.1em;
+    font-style: italic;
+  }
 
-h5:before {
-  content: ">>>";
-}
-
-h6 {
-  font-size: 1.1em;
-  font-style: italic;
-}
-
-h6:before {
-  content: ">>>>";
+  h6 {
+    font-size: 1.1em;
+    font-style: italic;
+  }
 }
 
 /*Code*/
@@ -165,7 +163,7 @@ code {
   max-width: 95%;
 }
 
-pre > code {
+pre>code {
   display: block;
   padding: 0.5em;
 }
@@ -174,7 +172,7 @@ pre > code {
 blockquote {
   padding: 0.5em;
   border-left: 0.5em #050505 solid;
-  background-color:#e6cfac;
+  background-color: #e6cfac;
 }
 
 /*Images*/
@@ -199,16 +197,18 @@ a:visited {
   color: #fa7de1;
 }
 
-h1 > a:visited {
+h1>a:visited {
   color: #000000
 }
 
-h1 > a {
+h1>a {
   color: #000000
 }
 
 /*Tables */
-table, th, td {
+table,
+th,
+td {
   border: 2px solid white;
   border-collapse: collapse;
 }
@@ -224,17 +224,20 @@ th {
   text-align: center;
 }
 
-th, td {
-    padding: 5px;
-    vertical-align: centre;
+th,
+td {
+  padding: 5px;
+  vertical-align: centre;
 }
 
 tr:nth-child(odd) {
   background-color: #0f1e2d;
 }
+
 tr:nth-child(even) {
   background-color: #14283c;
 }
+
 tr:hover {
   background-color: #325032;
 }
@@ -262,27 +265,29 @@ tr:hover {
   }
 
   body {
-    font-size:14pt;
-    max-width:100%;
+    font-size: 14pt;
+    max-width: 100%;
     font-family: serif;
   }
 
-  header nav, footer {
+  header nav,
+  footer {
     display: none;
   }
 
-  a, a:visited {
+  a,
+  a:visited {
     text-decoration: underline;
   }
 
   a:after {
-    content: "( "attr(href)" )"
+    content: "( " attr(href)" )"
   }
 
   h1 {
     page-break-before: always;
     border: none;
-    font-size:24pt;
+    font-size: 24pt;
   }
 
   h1:first-of-type {
@@ -291,13 +296,13 @@ tr:hover {
 
   h2 {
     page-break-after: avoid;
-    font-size:18pt;
+    font-size: 18pt;
     margin-top: 25px;
   }
 
   h3 {
     page-break-after: avoid;
-    font-size:16pt;
+    font-size: 16pt;
   }
 
   code {

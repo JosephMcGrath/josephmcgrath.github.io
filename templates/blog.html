@@ -1,0 +1,27 @@
+{% extends "page.html" %}
+
+{% block body %}
+
+<h1>{{metadata["title"]}}</h1>
+
+<header>
+    <p>
+        Published: <i>{{metadata["published"].strftime("%d/%m/%Y")}}</i>
+    </p>
+
+    {% if (post.tags | length) > 0 %}
+    <p>
+        Tags: {% for the_tag in post.tags %}
+        <a>{{the_tag}}</a>
+        {%- if loop.index < post.tags | length %}, {% endif %}
+        {%- endfor %}
+    </p>
+    {% endif %}
+</header>
+
+<hr />
+
+<div class="blog">
+    {{post.html}}
+</div>
+{% endblock %}

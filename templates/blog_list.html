@@ -1,5 +1,16 @@
+{% extends "page.html" %}
+
+{% block body %}
 <h1>Blogs</h1>
+
+{% for month_label, posts in posts_by_month.items() %}
+<h2>{{month_label}}</h2>
 <ul>
-{% for blog in blogs %}  <li><a href="/blog/{{blog.url}}.html">{{blog.title}}</a></li>
-{% endfor %}
+    {%- for the_post in posts %}
+    <li><a href="{{the_post.url}}">{{the_post.metadata.title}}</a></li>
+    {%- endfor %}
 </ul>
+
+{% endfor %}
+
+{% endblock %}
