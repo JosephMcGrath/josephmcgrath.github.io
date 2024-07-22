@@ -15,7 +15,7 @@
             <title>{{the_post.title}}</title>
             <description>{{the_post.description}}</description>
             <guid isPermaLink="true">{{the_post.url}}</guid>
-            <link >{{ url(the_post.url) }}</guid>
+            <link>{{ url(the_post.url) }}</link>
             <pubDate>{{the_post.publish_date.strftime("%a, %d %b %Y %H:%M:%S +0000")}}</pubDate>
         </item>
         {%- endfor -%}
