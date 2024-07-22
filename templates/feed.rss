@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+    <channel>
+        <title>Joe McGrath's blog.</title>
+        <description>My personal blog for general thoughts etc.</description>
+        <link>https://josephmcgrath.github.io/</link>
+        <copyright>{{now.year}} Joe McGrath. All rights reserved</copyright>
+        <lastBuildDate>{{now.strftime("%a, %d %b %Y %H:%M:%S +0000")}}</lastBuildDate>
+        <pubDate>{{now.strftime("%a, %d %b %Y %H:%M:%S +0000")}}</pubDate>
+        <ttl>2880</ttl>
+
+        {%- for the_post in posts %}
+        <item>
+            <title>{{the_post.title}}</title>
+            <description>{{the_post.description}}</description>
+            <guid isPermaLink="true">{{the_post.url}}</guid>
+            <link >{{ url(the_post.url) }}</guid>
+            <pubDate>{{the_post.publish_date.strftime("%a, %d %b %Y %H:%M:%S +0000")}}</pubDate>
+        </item>
+        {%- endfor -%}
+
+    </channel>
+</rss>

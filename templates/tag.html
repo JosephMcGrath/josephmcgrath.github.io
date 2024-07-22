@@ -1,0 +1,13 @@
+{% extends "page.html" %}
+
+{% block body %}
+
+<h1>{{tag_name}}</h1>
+
+<ul>
+    {%- for the_post in posts %}
+    <li><a href="{{url(the_post.url)}}">{{the_post.metadata.title}}</a></li>
+    {%- endfor %}
+</ul>
+
+{% endblock %}

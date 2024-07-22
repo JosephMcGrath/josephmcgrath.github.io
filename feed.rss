@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+    <channel>
+        <title>Joe McGrath's blog.</title>
+        <description>My personal blog for general thoughts etc.</description>
+        <link>https://josephmcgrath.github.io/</link>
+        <copyright>2024 Joe McGrath. All rights reserved</copyright>
+        <lastBuildDate>Mon, 22 Jul 2024 20:29:36 +0000</lastBuildDate>
+        <pubDate>Mon, 22 Jul 2024 20:29:36 +0000</pubDate>
+        <ttl>2880</ttl>
+        <item>
+            <title>Visibility in SpatiaLite - Ray Tracing</title>
+            <description>Implementing a basic ray tracing algorithm in SpatiaLite.</description>
+            <guid isPermaLink="true">./blog/visibility-in-spatialite-ray-tracing.html</guid>
+            <link >https://josephmcgrath.github.io/blog/visibility-in-spatialite-ray-tracing.html</guid>
+            <pubDate>Sun, 16 Jun 2019 00:00:00 +0000</pubDate>
+        </item>
+        <item>
+            <title>Version Control for GeoJSON with Git</title>
+            <description>Generating simple overviews with GPS data.</description>
+            <guid isPermaLink="true">./blog/version-control-for-geojson-with-git.html</guid>
+            <link >https://josephmcgrath.github.io/blog/version-control-for-geojson-with-git.html</guid>
+            <pubDate>Sat, 15 Sep 2018 00:00:00 +0000</pubDate>
+        </item>
+        <item>
+            <title>Visualising GPS Logs</title>
+            <description>Generating simple overviews with GPS data.</description>
+            <guid isPermaLink="true">./blog/visualising-gps-logs.html</guid>
+            <link >https://josephmcgrath.github.io/blog/visualising-gps-logs.html</guid>
+            <pubDate>Sat, 15 Sep 2018 00:00:00 +0000</pubDate>
+        </item>
+        <item>
+            <title>Basic PostGIS Drawing Schema</title>
+            <description>A post.</description>
+            <guid isPermaLink="true">./blog/basic-postgis-drawing-schema.html</guid>
+            <link >https://josephmcgrath.github.io/blog/basic-postgis-drawing-schema.html</guid>
+            <pubDate>Tue, 28 Aug 2018 00:00:00 +0000</pubDate>
+        </item>
+        <item>
+            <title>Ordinance Survey Grid Letters</title>
+            <description>A brief overview of the prefixes used in the British Coordinate System.</description>
+            <guid isPermaLink="true">./blog/ordinance-survey-grid-letters.html</guid>
+            <link >https://josephmcgrath.github.io/blog/ordinance-survey-grid-letters.html</guid>
+            <pubDate>Tue, 15 May 2018 00:00:00 +0000</pubDate>
+        </item>
+        <item>
+            <title>Voronoi Polygons and Spatial Views in SpatiaLite</title>
+            <description>Creating Voronoi polygons live in SpatiaLite with examples.</description>
+            <guid isPermaLink="true">./blog/voronoi-polygons-and-spatial-views-in-spatialite.html</guid>
+            <link >https://josephmcgrath.github.io/blog/voronoi-polygons-and-spatial-views-in-spatialite.html</guid>
+            <pubDate>Tue, 15 May 2018 00:00:00 +0000</pubDate>
+        </item>
+        <item>
+            <title>EU Referendum Mapping</title>
+            <description>Basic exploratory mapping of the results of the EU referendum.</description>
+            <guid isPermaLink="true">./blog/eu-referendum-map.html</guid>
+            <link >https://josephmcgrath.github.io/blog/eu-referendum-map.html</guid>
+            <pubDate>Sun, 13 May 2018 00:00:00 +0000</pubDate>
+        </item>
+        <item>
+            <title>LiDAR Data and Contours in QGIS 2</title>
+            <description>A guide to visualising LiDAR and creating contours in QGIS 2.</description>
+            <guid isPermaLink="true">./blog/lidar-data-and-contours-in-qgis-2.html</guid>
+            <link >https://josephmcgrath.github.io/blog/lidar-data-and-contours-in-qgis-2.html</guid>
+            <pubDate>Sat, 19 Aug 2017 00:00:00 +0000</pubDate>
+        </item></channel>
+</rss>

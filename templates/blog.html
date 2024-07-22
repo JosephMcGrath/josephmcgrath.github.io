@@ -12,7 +12,7 @@
     {% if (post.tags | length) > 0 %}
     <p>
         Tags: {% for the_tag in post.tags %}
-        <a>{{the_tag}}</a>
+        <a href="{{url('tags/' + the_tag + '.html')}}">{{the_tag}}</a>
         {%- if loop.index < post.tags | length %}, {% endif %}
         {%- endfor %}
     </p>

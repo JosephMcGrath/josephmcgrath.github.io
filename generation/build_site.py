@@ -1,147 +1,275 @@
-# -*- coding: utf-8 -*-
+"""
+Tools to build my website from Markdown.
+"""
 
+import dataclasses
+import datetime
+import glob
 import os
+import re
+from typing import Any
+from urllib import parse
+
+import bs4
 import jinja2
 import markdown
-import re
-import datetime
+import yaml
+from markdown.extensions.wikilinks import WikiLinkExtension
 
 
-class simple_markdown:
-    """Converts a markdown file into html with attached metadata."""
+class SiteBuilder:
+    """
+    Main process that controls the construction of the website.
+    """
 
-    markdown_extensions = ["fenced_code", "meta"]
+    def __init__(
+        self, input_dir: str, output_dir: str, template_dir: str, base_url: str = "/"
+    ) -> None:
+        self.input_dir = input_dir
+        self.output_dir = output_dir
+        self.base_url = base_url
 
-    def __init__(self, src_path):
-        self.parse_markdown(src_path)
-
-    def parse_markdown(self, src_path):
-        """
-        Converts a markdown file to html (results stored on the simple_markdown
-        object rather than returned).
-        """
-        markdown_parser = markdown.Markdown(extensions=self.markdown_extensions)
-
-        with open(src_path, "r") as f:
-            lines_in = f.readlines()
-
-        self.file_path = src_path
-        self.markdown = "".join([x for x in lines_in if not re.match(r"^\@", x)])
-        self.html = markdown_parser.convert(self.markdown)
-        self.meta = markdown_parser.Meta
-
-        if "finished" in self.meta:
-            self.finished = self.meta.get("finished")[0] == "True"
-        else:
-            False
-        self.title = self.meta.get("title")[0]
-
-    def metadata(self):
-        """Consolidates metadata entries to strings."""
-        output = {key: ",".join(self.meta[key]) for key in self.meta}
-
-        return output
-
-
-class site_press:
-    def __init__(self, root_dir, css_style=None):
-        self.root_dir = root_dir
-        self.css_style = css_style
-
-        file_loader = jinja2.FileSystemLoader(os.path.join(root_dir, "templates"))
+        file_loader = jinja2.FileSystemLoader(template_dir)
         self.env = jinja2.Environment(loader=file_loader)
+        self.env.globals["url"] = self.url
 
-    def make_index(self):
-        """Generates the site index / home page."""
-        template = self.env.get_template("page.html")
-        body = self.env.get_template("index.html")
+    def run(self) -> None:
+        """Run the whole process."""
+        files = glob.glob(os.path.join(self.input_dir, "**", "*.md"), recursive=True)
 
-        page_title = "Joe McGrath"
-
-        metadata = {
-            "title": page_title,
-            "description": "Joe McGrath's personal site.",
-            "date_generated": datetime.datetime.now().isoformat(),
-        }
-
-        index_page = template.render(
-            metadata=metadata,
-            title=page_title,
-            style=self.css_style,
-            body=body.render(),
-        )
-
-        with open(os.path.join(self.root_dir, "index.html"), "w") as f:
-            f.writelines(index_page)
-
-    def webify(self, string):
-        """Converts a string into one suitable for a url."""
-        string = string.lower()
-        string = string.replace("_", "-")
-        string = re.sub(r"\s|\_", "-", string)
-        return string
-
-    def blog_path(self, src_path, dir_out="blog"):
-        """Alters a markdown file path to be under the blog directory (on disc)."""
-        file_name = self.blog_name(src_path)
-        file_name = os.path.splitext(file_name)[0] + ".html"
-
-        file_out = os.path.join(self.root_dir, dir_out, file_name)
-        return file_out
-
-    def blog_name(self, src_path):
-        """Extracts a blog name from a file path."""
-        file_name = self.webify(os.path.split(src_path)[-1])
-        file_name = os.path.splitext(file_name)[0]
-        return file_name
-
-    def render_blog(self, src_file):
-        """Renders a single markdown blog to a html file."""
-        file_out = self.blog_path(src_file)
-        template = self.env.get_template("page.html")
-
-        blog_in = simple_markdown(src_file)
-
-        if blog_in.finished:
-            page_out = template.render(
-                title=blog_in.title,
-                style=self.css_style,
-                body=blog_in.html,
-                metadata=blog_in.metadata(),
+        # Initial rendering
+        posts: list["Post"] = []
+        valid_links: set[str] = set()
+        for the_file in files:
+            with open(the_file, encoding="utf-8") as file:
+                the_post = render_markdown(file.read())
+            the_post.src_path = the_file
+            the_post.url = path_to_url(os.path.relpath(the_file, self.input_dir))
+            the_post.dst_path = os.path.abspath(
+                os.path.join(self.output_dir, the_post.url)
             )
-            with open(file_out, "w") as f:
-                f.writelines(page_out)
+            if the_post.metadata.get("published") is None:
+                continue
+            posts.append(the_post)
+            valid_links.add(the_post.metadata.get("title"))
+        posts = sorted(posts, key=lambda x: x.publish_date, reverse=True)
 
-        return blog_in
+        # Post-processing
+        for the_post in posts:
+            for the_link in the_post.soup.find_all("a"):
+                the_url = the_link.get("href")
+                if not isinstance(the_url, str):
+                    continue
+                elif the_url in valid_links:
+                    continue
+                elif the_url.startswith("http"):
+                    continue
+                else:
+                    the_link.replace_with(the_link.text)
+            for the_image in the_post.soup.find_all("img"):
+                the_url = the_image.get("src")
+                if not isinstance(the_url, str):
+                    continue
+                the_image["src"] = self.url(the_url)
 
-    def render_all_blogs(self):
-        """Renders all finished blogs and create the blog list."""
-        page = self.env.get_template("page.html")
-        b_list = self.env.get_template("blog_list.html")
-        search_dir = os.path.join(self.root_dir, "markdown")
-        all_files = os.listdir(search_dir)
-        all_files = [x for x in all_files if re.match(r".*\.md$", x)]
-        all_files = [os.path.join(search_dir, x) for x in all_files]
+        # Output the final HTML
+        template = self.env.get_template("blog.html")
+        for the_post in posts:
+            print(the_post.dst_path)
+            with open(the_post.dst_path, "w", encoding="utf-8") as file:
+                file.write(
+                    template.render(
+                        metadata=the_post.metadata,
+                        post=the_post,
+                    )
+                )
 
-        self.blog_list = []
-        for this_blog in all_files:
-            temp = self.render_blog(this_blog)
-            if temp.finished:
-                self.blog_list.append(temp)
+        # Generate a main set of links
+        posts_by_month = {}
+        for the_post in posts:
+            the_month = the_post.publish_date.strftime("%B %Y")
+            if the_month not in posts_by_month:
+                posts_by_month[the_month] = []
+            posts_by_month[the_month].append(the_post)
 
-        for this_blog in self.blog_list:
-            this_blog.url = self.blog_name(this_blog.file_path)
+        template = self.env.get_template("blog_list.html")
+        with open(
+            os.path.join(self.output_dir, "blogs.html"), "w", encoding="utf-8"
+        ) as file:
+            file.write(
+                template.render(
+                    metadata={"title": "Blogs"},
+                    posts_by_month=posts_by_month,
+                )
+            )
 
-        page_out = page.render(
-            title="Blogs",
-            style=self.css_style,
-            body=b_list.render(blogs=self.blog_list),
-        )
+        # Index page.
+        with open(
+            os.path.join(self.output_dir, "index.html"), "w", encoding="utf-8"
+        ) as file:
+            file.write(
+                self.env.get_template("index.html").render(
+                    metadata={"title": "Joe McGrath - Home page"}
+                )
+            )
 
-        with open(self.blog_path("blogs"), "w") as f:
-            f.writelines(page_out)
+        # RSS Feed.
+        with open(
+            os.path.join(self.output_dir, "feed.rss"), "w", encoding="utf-8"
+        ) as file:
+            file.write(
+                self.env.get_template("feed.rss").render(
+                    posts=posts,
+                    now=datetime.datetime.now(),
+                )
+            )
+
+        # Tag pages
+        tags = {}
+        for the_post in posts:
+            for the_tag in the_post.tags:
+                if the_tag not in tags:
+                    tags[the_tag] = []
+                tags[the_tag].append(the_post)
+
+        for the_tag, the_posts in tags.items():
+            with open(
+                os.path.join("tags", f"{the_tag}.html"), "w", encoding="utf-8"
+            ) as file:
+                file.write(
+                    self.env.get_template("tag.html").render(
+                        tag_name=the_tag,
+                        posts=the_posts,
+                        now=datetime.datetime.now(),
+                    )
+                )
+
+    def url(self, path: str) -> str:
+        if re.search(r"(?i)^[A-Z]\:[\\|/].*", self.base_url):
+            # File paths - do local rendering.
+            return "file:///" + os.path.join(self.base_url, path).replace("\\", "/")
+
+        return parse.urljoin(self.base_url, path)
 
 
-site = site_press(os.path.dirname(os.getcwd()), "/main.css")
-site.make_index()
-site.render_all_blogs()
+@dataclasses.dataclass
+class Post:
+    """
+    An individual blog post.
+    """
+
+    markdown: str
+    soup: bs4.BeautifulSoup
+    metadata: dict[str, Any]
+
+    src_path: str = ""
+    dst_path: str = ""
+    url: str = ""
+
+    @property
+    def html(self) -> str:
+        """The rendered HTML for this post."""
+        return self.soup.prettify()
+
+    @property
+    def publish_date(self) -> datetime.datetime:
+        """Get a publish date for the post."""
+        return self.metadata.get("published", datetime.datetime.now())
+
+    @property
+    def title(self) -> str:
+        return self.metadata.get("title", "Post title missing.")
+
+    @property
+    def description(self) -> str:
+        return self.metadata.get("description", "A post.")
+
+    @property
+    def tags(self) -> list[str]:
+        """The tags describing this post."""
+        return self.metadata.get("tags", [])
+
+
+def render_markdown(markdown_text: str) -> Post:
+    """
+    Convert notebook-style Markdown into ready-to-use HTML.
+    """
+
+    # Set up markdown -> HTML renderer.
+    markdown_parser = markdown.Markdown(
+        extensions=[
+            "fenced_code",
+            "meta",
+            "tables",
+            # Using the default syntax highlighting.
+            "codehilite",
+            WikiLinkExtension(),
+            WikiLinkExtension(base_url="", end_url=""),
+            # WikiLinkExtension(base_url='./blog/',end_url='.html'),
+        ]
+    )
+
+    # Extract any frontmatter
+    lines = markdown_text.split("\n")
+    standard_meta = {
+        "title": "",
+        "tags": [],
+        "published": None,
+    }
+    meta_block = []
+    has_meta = False
+    line_no = 0
+    for line_no, line in enumerate(lines):
+        if line.startswith("---"):
+            if line_no == 0:
+                has_meta = True
+            else:
+                break
+        else:
+            meta_block.append(line)
+    if has_meta:
+        meta = yaml.safe_load("\n".join(meta_block))
+        meta = {**standard_meta.copy(), **meta}
+        body = "\n".join(lines[line_no + 1 :]).strip()
+    else:
+        body = "\n".join(lines).strip()
+        meta = standard_meta.copy()
+
+    # Post-process the HTML
+    soup = bs4.BeautifulSoup(markdown_parser.convert(body), features="html.parser")
+
+    # Drop heading tags down one level (I write with multiple H1 elements).
+    replacements = ["h6", "h5", "h4", "h3", "h2", "h1"]
+    for n, the_target in enumerate(replacements[1:]):
+        for the_tag in soup.find_all(the_target):
+            new_tag = soup.new_tag(replacements[n])
+            new_tag.string = the_tag.text
+
+            the_tag.replace_with(new_tag)
+
+    return Post(
+        markdown=markdown_text,
+        soup=soup,
+        metadata=meta,
+    )
+
+
+def path_to_url(path: str) -> str:
+    """Convert a file path to a URL."""
+    url = re.sub(r"[\s\_-]+", "-", path.lower())
+    url = f"./{os.path.splitext(url)[0]}.html"
+    url = url.replace("\\", "/")
+
+    return url
+
+
+if __name__ == "__main__":
+    # TODO : Simple local vs relative build for checking.
+    # TODO : Either consistently add or remove copyright statements.
+    builder = SiteBuilder(
+        r"./markdown",
+        r".",
+        r"./templates",
+        r"https://josephmcgrath.github.io/",
+    )
+    builder.run()
